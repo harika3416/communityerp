@@ -21,7 +21,9 @@ app.use(express.json());
 // FRONTEND
 // =====================================
 
-app.use(express.static(__dirname));
+const publicPath = path.join(__dirname, "public");
+
+app.use(express.static(publicPath));
 
 
 // =====================================
@@ -29,7 +31,9 @@ app.use(express.static(__dirname));
 // =====================================
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(
+        path.join(publicPath, "index.html")
+    );
 });
 
 
@@ -41,10 +45,11 @@ const PORT = process.env.PORT || 3000;
 
 
 // =====================================
-// GMAIL
+// GMAIL TRANSPORTER
 // =====================================
 
 const transporter = nodemailer.createTransport({
+
     service: "gmail",
 
     auth: {
@@ -74,7 +79,7 @@ function generateOTP() {
 
 
 // =====================================
-// GENERATE TOKEN
+// GENERATE VERIFICATION TOKEN
 // =====================================
 
 function generateVerificationToken() {
@@ -86,7 +91,7 @@ function generateVerificationToken() {
 
 
 // =====================================
-// GENERATE OTP
+// GENERATE OTP API
 // =====================================
 
 app.post(
@@ -111,19 +116,19 @@ app.post(
             }
 
 
-            // Generate new OTP
+            // Generate OTP
 
             const otp =
                 generateOTP();
 
 
-            // Generate token
+            // Generate verification token
 
             const verificationToken =
                 generateVerificationToken();
 
 
-            // Store everything together
+            // Store OTP information
 
             otpStore.set(email, {
 
@@ -138,7 +143,7 @@ app.post(
             });
 
 
-            // Send email
+            // Send OTP email
 
             await transporter.sendMail({
 
@@ -238,7 +243,7 @@ app.post(
 
 
 // =====================================
-// VERIFY OTP
+// VERIFY OTP API
 // =====================================
 
 app.post(
@@ -252,9 +257,11 @@ app.post(
                     .trim()
                     .toLowerCase();
 
+
             const otp =
                 String(req.body.otp || "")
                     .trim();
+
 
             const verificationToken =
                 String(
@@ -278,7 +285,7 @@ app.post(
             }
 
 
-            // Get stored OTP
+            // Find stored OTP
 
             const storedData =
                 otpStore.get(email);
@@ -322,18 +329,6 @@ app.post(
 
                     message:
                         "Invalid verification session. Please request a new OTP."
-                });
-            }
-
-
-            // Check OTP length
-
-            if (otp.length !== 6) {
-
-                return res.status(400).json({
-
-                    message:
-                        "OTP must contain 6 digits."
                 });
             }
 
