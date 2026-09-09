@@ -1,18 +1,24 @@
 {
   "name": "communityerp-vercel",
   "version": "1.0.0",
-  "description": "Vercel-compatible demo for the supplied CommunityERP login and OTP screens.",
-  "main": "app.js",
+  "description": "CommunityERP Super Admin Console with OTP authentication",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [],
+  "keywords": [
+    "communityerp",
+    "express",
+    "otp",
+    "nodemailer",
+    "vercel"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
+    "dotenv": "^17.2.2",
     "express": "^5.2.1",
-    "nodemailer": "^10.0.1"
+    "nodemailer": "^7.0.6"
   }
 }

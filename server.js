@@ -8,15 +8,29 @@ require("dotenv").config();
 
 const app = express();
 
+
+// =====================================
+// MIDDLEWARE
+// =====================================
+
 app.use(cors());
 app.use(express.json());
 
 
 // =====================================
-// SERVE FRONTEND FILES
+// FRONTEND
 // =====================================
 
 app.use(express.static(__dirname));
+
+
+// =====================================
+// HOME PAGE
+// =====================================
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
 
 
 // =====================================
@@ -27,7 +41,7 @@ const PORT = process.env.PORT || 3000;
 
 
 // =====================================
-// GMAIL TRANSPORTER
+// GMAIL
 // =====================================
 
 const transporter = nodemailer.createTransport({
@@ -52,33 +66,27 @@ const otpStore = new Map();
 // =====================================
 
 function generateOTP() {
-    return Math.floor(
-        100000 + Math.random() * 900000
-    ).toString();
-}
-
-
-// =====================================
-// GENERATE VERIFICATION TOKEN
-// =====================================
-
-function generateVerificationToken(email, otp) {
-
-    const data =
-        `${email}:${otp}:${Date.now()}`;
 
     return crypto
-        .createHmac(
-            "sha256",
-            process.env.EMAIL_PASS
-        )
-        .update(data)
-        .digest("hex");
+        .randomInt(100000, 1000000)
+        .toString();
 }
 
 
 // =====================================
-// SEND OTP
+// GENERATE TOKEN
+// =====================================
+
+function generateVerificationToken() {
+
+    return crypto
+        .randomBytes(32)
+        .toString("hex");
+}
+
+
+// =====================================
+// GENERATE OTP
 // =====================================
 
 app.post(
@@ -87,28 +95,51 @@ app.post(
 
         try {
 
-            const { email } = req.body;
+            const email =
+                String(req.body.email || "")
+                    .trim()
+                    .toLowerCase();
+
 
             if (!email) {
 
                 return res.status(400).json({
-                    message: "Email is required."
+
+                    message:
+                        "Email is required."
                 });
             }
 
 
-            const otp = generateOTP();
+            // Generate new OTP
+
+            const otp =
+                generateOTP();
 
 
-            // Store OTP for 5 minutes
+            // Generate token
+
+            const verificationToken =
+                generateVerificationToken();
+
+
+            // Store everything together
+
             otpStore.set(email, {
+
                 otp: otp,
+
+                verificationToken:
+                    verificationToken,
+
                 expiresAt:
-                    Date.now() + 5 * 60 * 1000
+                    Date.now() +
+                    5 * 60 * 1000
             });
 
 
-            // Send OTP to entered email
+            // Send email
+
             await transporter.sendMail({
 
                 from:
@@ -174,15 +205,8 @@ app.post(
 
 
             console.log(
-                `OTP sent to ${email}`
+                `OTP sent successfully to ${email}`
             );
-
-
-            const verificationToken =
-                generateVerificationToken(
-                    email,
-                    otp
-                );
 
 
             return res.json({
@@ -194,12 +218,14 @@ app.post(
                     verificationToken
             });
 
+
         } catch (error) {
 
             console.error(
                 "Email sending error:",
                 error
             );
+
 
             return res.status(500).json({
 
@@ -221,12 +247,22 @@ app.post(
 
         try {
 
-            const {
-                email,
-                otp,
-                verificationToken
-            } = req.body;
+            const email =
+                String(req.body.email || "")
+                    .trim()
+                    .toLowerCase();
 
+            const otp =
+                String(req.body.otp || "")
+                    .trim();
+
+            const verificationToken =
+                String(
+                    req.body.verificationToken || ""
+                ).trim();
+
+
+            // Validate request
 
             if (
                 !email ||
@@ -241,6 +277,8 @@ app.post(
                 });
             }
 
+
+            // Get stored OTP
 
             const storedData =
                 otpStore.get(email);
@@ -257,6 +295,7 @@ app.post(
 
 
             // Check expiration
+
             if (
                 Date.now() >
                 storedData.expiresAt
@@ -272,7 +311,35 @@ app.post(
             }
 
 
+            // Check verification token
+
+            if (
+                storedData.verificationToken !==
+                verificationToken
+            ) {
+
+                return res.status(401).json({
+
+                    message:
+                        "Invalid verification session. Please request a new OTP."
+                });
+            }
+
+
+            // Check OTP length
+
+            if (otp.length !== 6) {
+
+                return res.status(400).json({
+
+                    message:
+                        "OTP must contain 6 digits."
+                });
+            }
+
+
             // Check OTP
+
             if (
                 storedData.otp !== otp
             ) {
@@ -285,7 +352,8 @@ app.post(
             }
 
 
-            // OTP verified
+            // Successful verification
+
             otpStore.delete(email);
 
 
@@ -298,12 +366,14 @@ app.post(
                     true
             });
 
+
         } catch (error) {
 
             console.error(
                 "OTP verification error:",
                 error
             );
+
 
             return res.status(500).json({
 
@@ -353,7 +423,7 @@ if (require.main === module) {
 
 
 // =====================================
-// VERCEL EXPORT
+// VERCEL
 // =====================================
 
 module.exports = app;

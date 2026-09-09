@@ -1,50 +1,89 @@
-const loginScreen = document.getElementById("loginScreen");
-const otpScreen = document.getElementById("otpScreen");
-const dashboardScreen = document.getElementById("dashboardScreen");
+const loginScreen =
+    document.getElementById("loginScreen");
 
-const identifierInput = document.getElementById("identifier");
-const generateBtn = document.getElementById("generateBtn");
-const verifyBtn = document.getElementById("verifyBtn");
+const otpScreen =
+    document.getElementById("otpScreen");
 
-const loginMessage = document.getElementById("loginMessage");
-const otpMessage = document.getElementById("otpMessage");
+const dashboardScreen =
+    document.getElementById("dashboardScreen");
+
+
+const identifierInput =
+    document.getElementById("identifier");
+
+const generateBtn =
+    document.getElementById("generateBtn");
+
+const verifyBtn =
+    document.getElementById("verifyBtn");
+
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+const otpMessage =
+    document.getElementById("otpMessage");
+
 
 const otpInputs = Array.from(
     document.querySelectorAll(".otp-inputs input")
 );
 
-const resendBtn = document.getElementById("resendBtn");
-const timerElement = document.getElementById("timer");
-const backBtn = document.getElementById("backBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+
+const resendBtn =
+    document.getElementById("resendBtn");
+
+const timerElement =
+    document.getElementById("timer");
+
+const backBtn =
+    document.getElementById("backBtn");
+
+const logoutBtn =
+    document.getElementById("logoutBtn");
+
 
 let verificationToken = null;
+
 let timerInterval = null;
+
 let remainingSeconds = 44;
 
-// Store the email used for OTP
 let userEmail = "";
 
 
 // =====================================
-// HELPERS
+// SCREEN FUNCTIONS
 // =====================================
 
 function show(element) {
+
     element.classList.remove("hidden");
 }
 
+
 function hide(element) {
+
     element.classList.add("hidden");
 }
 
+
+// =====================================
+// OTP FUNCTIONS
+// =====================================
+
 function clearOtpInputs() {
+
     otpInputs.forEach((input) => {
+
         input.value = "";
+
     });
 }
 
+
 function getOtp() {
+
     return otpInputs
         .map((input) => input.value)
         .join("");
@@ -55,264 +94,355 @@ function getOtp() {
 // GENERATE OTP
 // =====================================
 
-generateBtn.addEventListener("click", async () => {
+generateBtn.addEventListener(
+    "click",
+    async () => {
 
-    const email = identifierInput.value.trim();
+        const email =
+            identifierInput.value
+                .trim()
+                .toLowerCase();
 
-    // Check email
-    if (!email) {
-        loginMessage.textContent = "Email is required.";
-        return;
-    }
 
-    // Basic email validation
-    const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
 
-    if (!emailPattern.test(email)) {
+            loginMessage.textContent =
+                "Email is required.";
+
+            return;
+        }
+
+
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (!emailPattern.test(email)) {
+
+            loginMessage.textContent =
+                "Please enter a valid email address.";
+
+            return;
+        }
+
+
+        userEmail = email;
+
+
         loginMessage.textContent =
-            "Please enter a valid email address.";
-        return;
+            "Sending verification code...";
+
+
+        generateBtn.disabled = true;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/auth/generate-otp",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            email: email
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to send verification code."
+                );
+            }
+
+
+            verificationToken =
+                data.verificationToken;
+
+
+            hide(loginScreen);
+
+            show(otpScreen);
+
+
+            clearOtpInputs();
+
+
+            otpMessage.textContent =
+                "A verification code has been sent to your email.";
+
+
+            startTimer();
+
+
+            otpInputs[0].focus();
+
+
+        } catch (error) {
+
+            loginMessage.textContent =
+                error.message;
+
+
+        } finally {
+
+            generateBtn.disabled = false;
+        }
     }
+);
 
-    // Save email for OTP verification
-    userEmail = email;
 
-    loginMessage.textContent =
-        "Sending verification code...";
+// =====================================
+// OTP INPUTS
+// =====================================
 
-    generateBtn.disabled = true;
+otpInputs.forEach(
+    (input, index) => {
 
-    try {
+        input.addEventListener(
+            "input",
+            () => {
 
-        const response = await fetch(
-            "/api/auth/generate-otp",
-            {
-                method: "POST",
+                input.value =
+                    input.value
+                        .replace(/\D/g, "")
+                        .slice(0, 1);
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
 
-                body: JSON.stringify({
-                    email: email
-                })
+                if (
+                    input.value &&
+                    index <
+                    otpInputs.length - 1
+                ) {
+
+                    otpInputs[index + 1]
+                        .focus();
+                }
             }
         );
 
-        const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(
-                data.message ||
-                "Unable to send verification code."
-            );
-        }
+        input.addEventListener(
+            "keydown",
+            (event) => {
 
-        // Store verification token only.
-        // OTP itself is never sent to the frontend.
-        verificationToken =
-            data.verificationToken;
+                if (
+                    event.key ===
+                    "Backspace" &&
+                    !input.value &&
+                    index > 0
+                ) {
 
-        hide(loginScreen);
-        show(otpScreen);
+                    otpInputs[index - 1]
+                        .focus();
+                }
+            }
+        );
 
-        clearOtpInputs();
-
-        otpMessage.textContent =
-            "A verification code has been sent to your email.";
-
-        startTimer();
-
-        otpInputs[0].focus();
-
-    } catch (error) {
-
-        loginMessage.textContent =
-            error.message;
-
-    } finally {
-
-        generateBtn.disabled = false;
     }
-});
-
-
-// =====================================
-// OTP INPUT
-// =====================================
-
-otpInputs.forEach((input, index) => {
-
-    input.addEventListener("input", () => {
-
-        input.value =
-            input.value
-                .replace(/\D/g, "")
-                .slice(0, 1);
-
-        if (
-            input.value &&
-            index < otpInputs.length - 1
-        ) {
-
-            otpInputs[index + 1].focus();
-        }
-    });
-
-
-    input.addEventListener("keydown", (event) => {
-
-        if (
-            event.key === "Backspace" &&
-            !input.value &&
-            index > 0
-        ) {
-
-            otpInputs[index - 1].focus();
-        }
-    });
-
-});
+);
 
 
 // =====================================
 // VERIFY OTP
 // =====================================
 
-verifyBtn.addEventListener("click", async () => {
+verifyBtn.addEventListener(
+    "click",
+    async () => {
 
-    const otp = getOtp();
+        const otp =
+            getOtp().trim();
 
-    if (otp.length !== 6) {
 
-        otpMessage.textContent =
-            "Please enter the complete 6-digit OTP.";
+        if (otp.length !== 6) {
 
-        return;
-    }
+            otpMessage.textContent =
+                "Please enter the complete 6-digit OTP.";
 
-    if (!verificationToken || !userEmail) {
-
-        otpMessage.textContent =
-            "Verification session expired. Please generate a new OTP.";
-
-        return;
-    }
-
-    verifyBtn.disabled = true;
-
-    otpMessage.textContent =
-        "Verifying...";
-
-    try {
-
-        const response = await fetch(
-            "/api/auth/verify-otp",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    email: userEmail,
-                    otp: otp,
-                    verificationToken: verificationToken
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "OTP verification failed."
-            );
+            return;
         }
 
-        clearInterval(timerInterval);
 
-        hide(otpScreen);
-        show(dashboardScreen);
+        if (
+            !verificationToken ||
+            !userEmail
+        ) {
 
-    } catch (error) {
+            otpMessage.textContent =
+                "Verification session expired. Please generate a new OTP.";
+
+            return;
+        }
+
+
+        verifyBtn.disabled = true;
+
 
         otpMessage.textContent =
-            error.message;
+            "Verifying...";
 
-    } finally {
 
-        verifyBtn.disabled = false;
+        try {
+
+            const response =
+                await fetch(
+                    "/api/auth/verify-otp",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            email:
+                                userEmail,
+
+                            otp:
+                                otp,
+
+                            verificationToken:
+                                verificationToken
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "OTP verification failed."
+                );
+            }
+
+
+            clearInterval(
+                timerInterval
+            );
+
+
+            hide(otpScreen);
+
+            show(dashboardScreen);
+
+
+        } catch (error) {
+
+            otpMessage.textContent =
+                error.message;
+
+
+        } finally {
+
+            verifyBtn.disabled = false;
+        }
     }
-});
+);
 
 
 // =====================================
 // RESEND OTP
 // =====================================
 
-resendBtn.addEventListener("click", async () => {
+resendBtn.addEventListener(
+    "click",
+    async () => {
 
-    if (!userEmail) {
-        return;
-    }
+        if (!userEmail) {
 
-    resendBtn.disabled = true;
-
-    otpMessage.textContent =
-        "Sending new verification code...";
-
-    try {
-
-        const response = await fetch(
-            "/api/auth/generate-otp",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    email: userEmail
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Unable to resend OTP."
-            );
+            return;
         }
 
-        verificationToken =
-            data.verificationToken;
+
+        resendBtn.disabled = true;
+
 
         otpMessage.textContent =
-            "A new verification code has been sent to your email.";
+            "Sending new verification code...";
 
-        clearOtpInputs();
 
-        otpInputs[0].focus();
+        try {
 
-        startTimer();
+            const response =
+                await fetch(
+                    "/api/auth/generate-otp",
+                    {
+                        method: "POST",
 
-    } catch (error) {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-        otpMessage.textContent =
-            error.message;
+                        body: JSON.stringify({
 
-        resendBtn.disabled = false;
+                            email:
+                                userEmail
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to resend OTP."
+                );
+            }
+
+
+            verificationToken =
+                data.verificationToken;
+
+
+            otpMessage.textContent =
+                "A new verification code has been sent to your email.";
+
+
+            clearOtpInputs();
+
+
+            otpInputs[0].focus();
+
+
+            startTimer();
+
+
+        } catch (error) {
+
+            otpMessage.textContent =
+                error.message;
+
+            resendBtn.disabled = false;
+        }
     }
-});
+);
 
 
 // =====================================
@@ -321,31 +451,49 @@ resendBtn.addEventListener("click", async () => {
 
 function startTimer() {
 
-    clearInterval(timerInterval);
+    clearInterval(
+        timerInterval
+    );
+
 
     remainingSeconds = 44;
 
+
     resendBtn.disabled = true;
+
 
     updateTimer();
 
-    timerInterval = setInterval(() => {
 
-        remainingSeconds--;
+    timerInterval =
+        setInterval(
+            () => {
 
-        updateTimer();
+                remainingSeconds--;
 
-        if (remainingSeconds <= 0) {
+                updateTimer();
 
-            clearInterval(timerInterval);
 
-            resendBtn.disabled = false;
+                if (
+                    remainingSeconds <= 0
+                ) {
 
-            timerElement.textContent =
-                "00:00";
-        }
+                    clearInterval(
+                        timerInterval
+                    );
 
-    }, 1000);
+
+                    resendBtn.disabled =
+                        false;
+
+
+                    timerElement.textContent =
+                        "00:00";
+                }
+
+            },
+            1000
+        );
 }
 
 
@@ -354,6 +502,7 @@ function updateTimer() {
     const seconds =
         String(remainingSeconds)
             .padStart(2, "0");
+
 
     timerElement.textContent =
         `00:${seconds}`;
@@ -364,40 +513,72 @@ function updateTimer() {
 // BACK TO LOGIN
 // =====================================
 
-backBtn.addEventListener("click", () => {
+backBtn.addEventListener(
+    "click",
+    () => {
 
-    clearInterval(timerInterval);
+        clearInterval(
+            timerInterval
+        );
 
-    hide(otpScreen);
-    show(loginScreen);
 
-    otpMessage.textContent = "";
+        hide(otpScreen);
 
-    clearOtpInputs();
+        show(loginScreen);
 
-    verificationToken = null;
-    userEmail = "";
-});
+
+        otpMessage.textContent =
+            "";
+
+
+        clearOtpInputs();
+
+
+        verificationToken =
+            null;
+
+        userEmail =
+            "";
+    }
+);
 
 
 // =====================================
 // LOGOUT
 // =====================================
 
-logoutBtn.addEventListener("click", () => {
+logoutBtn.addEventListener(
+    "click",
+    () => {
 
-    clearInterval(timerInterval);
+        clearInterval(
+            timerInterval
+        );
 
-    hide(dashboardScreen);
-    show(loginScreen);
 
-    identifierInput.value = "";
+        hide(dashboardScreen);
 
-    clearOtpInputs();
+        show(loginScreen);
 
-    verificationToken = null;
-    userEmail = "";
 
-    loginMessage.textContent = "";
-    otpMessage.textContent = "";
-});
+        identifierInput.value =
+            "";
+
+
+        clearOtpInputs();
+
+
+        verificationToken =
+            null;
+
+        userEmail =
+            "";
+
+
+        loginMessage.textContent =
+            "";
+
+        otpMessage.textContent =
+            "";
+    }
+);
