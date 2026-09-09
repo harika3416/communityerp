@@ -1,0 +1,18 @@
+{
+  "name": "communityerp-vercel",
+  "version": "1.0.0",
+  "description": "Vercel-compatible demo for the supplied CommunityERP login and OTP screens.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nodemailer": "^10.0.1"
+  }
+}

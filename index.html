@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CommunityERP - Super Admin Console</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="loginScreen" class="layout">
+      <div class="brand-panel">
+        <div>
+          <h1>CommunityERP</h1>
+          <p>Super Admin Console</p>
+        </div>
+        <div class="hero-art">
+          <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+          <div class="cube c1">⌘</div><div class="cube c2">▣</div><div class="cube c3">◈</div>
+          <div class="cube c4">↗</div><div class="cube c5">◎</div>
+          <div class="lines"></div>
+        </div>
+        <p class="brand-copy">Securely manage community configurations, user access,<br/>and system infrastructure from a centralized command center.</p>
+      </div>
+
+      <div class="form-panel">
+        <span class="secure">● SECURE PORTAL</span>
+        <div class="form-wrap">
+          <h2>Welcome Back</h2>
+          <p class="subtitle">Enter your credentials to access the secure console.</p>
+          <label>EMAIL OR PHONE NUMBER</label>
+          <input id="identifier" type="text" placeholder="admin@communityerp.com" autocomplete="username" />
+          <button id="generateBtn">Generate OTP <span>→</span></button>
+          <div class="divider"></div>
+          <div class="links">
+            <button class="text-btn" id="forgotBtn">◉ Forgot Password?</button>
+            <button class="text-btn" id="supportBtn">♧ Contact Support</button>
+          </div>
+          <p id="loginMessage" class="message"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="otpScreen" class="otp-screen hidden">
+      <div class="otp-logo">▦</div>
+      <h1>CommunityERP</h1>
+      <div class="otp-card">
+        <h2>Verification Code Sent</h2>
+        <p>Enter the 6-digit code sent to your email/phone.</p>
+        <div class="otp-inputs">
+          <input maxlength="1" inputmode="numeric" />
+          <input maxlength="1" inputmode="numeric" />
+          <input maxlength="1" inputmode="numeric" />
+          <input maxlength="1" inputmode="numeric" />
+          <input maxlength="1" inputmode="numeric" />
+          <input maxlength="1" inputmode="numeric" />
+        </div>
+        <button id="verifyBtn">Verify &amp; Login <span>→</span></button>
+        <p id="resendText">Didn't receive the code? <button id="resendBtn" class="link-btn">Resend</button> in <b id="timer">00:44</b></p>
+        <button id="backBtn" class="back-btn">← Back to login</button>
+        <p id="otpMessage" class="message"></p>
+        <p id="demoOtp" class="demo"></p>
+      </div>
+    </section>
+
+    <section id="dashboardScreen" class="dashboard hidden">
+      <header>
+        <div><strong>CommunityERP</strong><small>Super Admin Console</small></div>
+        <button id="logoutBtn">Logout</button>
+      </header>
+      <div class="dashboard-body">
+        <div class="dash-icon">✓</div>
+        <h2>Welcome to the Super Admin Console</h2>
+        <p>You have successfully authenticated with OTP.</p>
+        <div class="stat-row">
+          <div><b>Authenticated</b><span>Secure session active</span></div>
+          <div><b>Portal</b><span>Super Admin</span></div>
+          <div><b>Access</b><span>Granted</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
