@@ -2,13 +2,26 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const path = require("path");
+
 require("dotenv").config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("."));
+
+
+// =====================================
+// SERVE FRONTEND FILES
+// =====================================
+
+app.use(express.static(__dirname));
+
+
+// =====================================
+// PORT
+// =====================================
 
 const PORT = process.env.PORT || 3000;
 
@@ -19,6 +32,7 @@ const PORT = process.env.PORT || 3000;
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
+
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -64,7 +78,7 @@ function generateVerificationToken(email, otp) {
 
 
 // =====================================
-// GENERATE OTP
+// SEND OTP
 // =====================================
 
 app.post(
@@ -94,7 +108,7 @@ app.post(
             });
 
 
-            // Send OTP to user's email
+            // Send OTP to entered email
             await transporter.sendMail({
 
                 from:
@@ -242,7 +256,7 @@ app.post(
             }
 
 
-            // Check OTP expiration
+            // Check expiration
             if (
                 Date.now() >
                 storedData.expiresAt
@@ -271,7 +285,7 @@ app.post(
             }
 
 
-            // OTP successfully verified
+            // OTP verified
             otpStore.delete(email);
 
 
@@ -339,7 +353,7 @@ if (require.main === module) {
 
 
 // =====================================
-// EXPORT FOR VERCEL
+// VERCEL EXPORT
 // =====================================
 
 module.exports = app;
