@@ -1,6 +1,10 @@
-// =====================================================
+// ============================================================
+// COMMUNITYERP - COMPLETE FRONTEND JAVASCRIPT
+// ============================================================
+
+// ============================================================
 // ELEMENTS
-// =====================================================
+// ============================================================
 
 const loginScreen = document.getElementById("loginScreen");
 const otpScreen = document.getElementById("otpScreen");
@@ -39,17 +43,17 @@ const newActionBtn =
     document.getElementById("newActionBtn");
 
 
-// =====================================================
-// AUTH
-// =====================================================
+// ============================================================
+// AUTH STATE
+// ============================================================
 
 let currentEmail = "";
 let verificationToken = "";
 
 
-// =====================================================
+// ============================================================
 // HELPERS
-// =====================================================
+// ============================================================
 
 function show(element) {
     element?.classList.remove("hidden");
@@ -62,100 +66,87 @@ function hide(element) {
 
 
 function setText(id, value) {
-
-    const element =
-        document.getElementById(id);
+    const element = document.getElementById(id);
 
     if (element) {
         element.textContent = value;
     }
-
 }
 
 
 function number(value) {
-
-    return Number(value || 0)
-        .toLocaleString();
-
+    return Number(value || 0).toLocaleString();
 }
 
 
 function message(element, text, type = "") {
+    if (!element) return;
+
+    element.textContent = text;
+    element.className = `message ${type}`;
+}
+
+
+function setStatus(id, text, type = "") {
+    const element = document.getElementById(id);
 
     if (!element) return;
 
     element.textContent = text;
-    element.className =
-        `message ${type}`;
-
-}
-
-
-async function api(url, options = {}) {
-
-    const response =
-        await fetch(url, {
-
-            ...options,
-
-            headers: {
-
-                "Content-Type":
-                    "application/json",
-
-                ...(options.headers || {})
-
-            }
-
-        });
-
-
-    const data =
-        await response.json();
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.message ||
-            "Something went wrong."
-        );
-
-    }
-
-
-    return data;
-
+    element.className = `module-status ${type}`;
 }
 
 
 function escapeHtml(value) {
-
-    return String(value)
+    return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-
 }
 
 
-// =====================================================
-// CURRENT DATE
-// =====================================================
+async function api(url, options = {}) {
+
+    const response = await fetch(url, {
+        ...options,
+
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    } catch {
+        data = {};
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "Something went wrong."
+        );
+    }
+
+    return data;
+}
+
+
+// ============================================================
+// DATE
+// ============================================================
 
 function updateDashboardDate() {
 
     const element =
-        document.getElementById(
-            "dashboardDate"
-        );
-
+        document.getElementById("dashboardDate");
 
     if (!element) return;
-
 
     element.textContent =
         new Date().toLocaleDateString(
@@ -167,21 +158,19 @@ function updateDashboardDate() {
                 year: "numeric"
             }
         );
-
 }
 
 
-// =====================================================
-// LOGIN
-// =====================================================
+// ============================================================
+// LOGIN - GENERATE OTP
+// ============================================================
 
 generateBtn?.addEventListener(
     "click",
     async () => {
 
         const email =
-            emailInput.value.trim();
-
+            emailInput?.value.trim();
 
         if (!email) {
 
@@ -194,47 +183,37 @@ generateBtn?.addEventListener(
             return;
         }
 
-
         generateBtn.disabled = true;
-        generateBtn.textContent =
-            "Sending...";
-
+        generateBtn.textContent = "Sending...";
 
         try {
 
-            const data =
+            const result =
                 await api(
                     "/api/auth/generate-otp",
                     {
                         method: "POST",
-
-                        body:
-                            JSON.stringify({
-                                email
-                            })
+                        body: JSON.stringify({
+                            email
+                        })
                     }
                 );
-
 
             currentEmail = email;
 
             verificationToken =
-                data.verificationToken;
-
+                result.verificationToken;
 
             hide(loginScreen);
             show(otpScreen);
 
-
             message(
                 otpMessage,
-                data.message,
+                result.message,
                 "success"
             );
 
-
             otpInputs[0]?.focus();
-
 
         } catch (error) {
 
@@ -244,23 +223,20 @@ generateBtn?.addEventListener(
                 "error"
             );
 
-
         } finally {
 
             generateBtn.disabled = false;
 
             generateBtn.innerHTML =
                 "<span>Generate OTP</span><span>→</span>";
-
         }
-
     }
 );
 
 
-// =====================================================
+// ============================================================
 // OTP INPUT
-// =====================================================
+// ============================================================
 
 otpInputs.forEach(
     (input, index) => {
@@ -275,7 +251,6 @@ otpInputs.forEach(
                         ""
                     );
 
-
                 if (
                     input.value &&
                     index <
@@ -285,9 +260,7 @@ otpInputs.forEach(
                     otpInputs[
                         index + 1
                     ].focus();
-
                 }
-
             }
         );
 
@@ -305,19 +278,16 @@ otpInputs.forEach(
                     otpInputs[
                         index - 1
                     ].focus();
-
                 }
-
             }
         );
-
     }
 );
 
 
-// =====================================================
+// ============================================================
 // VERIFY OTP
-// =====================================================
+// ============================================================
 
 verifyBtn?.addEventListener(
     "click",
@@ -327,7 +297,6 @@ verifyBtn?.addEventListener(
             [...otpInputs]
                 .map(input => input.value)
                 .join("");
-
 
         if (otp.length !== 6) {
 
@@ -340,11 +309,8 @@ verifyBtn?.addEventListener(
             return;
         }
 
-
         verifyBtn.disabled = true;
-        verifyBtn.textContent =
-            "Verifying...";
-
+        verifyBtn.textContent = "Verifying...";
 
         try {
 
@@ -353,20 +319,13 @@ verifyBtn?.addEventListener(
                 {
                     method: "POST",
 
-                    body:
-                        JSON.stringify({
-
-                            email:
-                                currentEmail,
-
-                            otp,
-
-                            verificationToken
-
-                        })
+                    body: JSON.stringify({
+                        email: currentEmail,
+                        otp,
+                        verificationToken
+                    })
                 }
             );
-
 
             hide(otpScreen);
             show(dashboardScreen);
@@ -374,7 +333,6 @@ verifyBtn?.addEventListener(
             updateDashboardDate();
 
             await loadDashboard();
-
 
         } catch (error) {
 
@@ -384,33 +342,54 @@ verifyBtn?.addEventListener(
                 "error"
             );
 
-
         } finally {
 
             verifyBtn.disabled = false;
-
             verifyBtn.textContent =
                 "Verify & Login";
-
         }
-
     }
 );
 
 
-// =====================================================
+// ============================================================
+// LOGOUT
+// ============================================================
+
+logoutBtn?.addEventListener(
+    "click",
+    () => {
+
+        currentEmail = "";
+        verificationToken = "";
+
+        hide(dashboardScreen);
+        hide(otpScreen);
+        show(loginScreen);
+
+        if (emailInput) {
+            emailInput.value = "";
+        }
+
+        otpInputs.forEach(
+            input => {
+                input.value = "";
+            }
+        );
+    }
+);
+
+
+// ============================================================
 // DASHBOARD
-// =====================================================
+// ============================================================
 
 async function loadDashboard() {
 
     try {
 
         const data =
-            await api(
-                "/api/dashboard"
-            );
-
+            await api("/api/dashboard");
 
         updateDashboard(data);
 
@@ -418,16 +397,13 @@ async function loadDashboard() {
 
         showDashboard();
 
-
     } catch (error) {
 
         console.error(
             "Dashboard error:",
             error
         );
-
     }
-
 }
 
 
@@ -445,8 +421,6 @@ function updateDashboard(data) {
     const attention =
         data.attentionRequired || {};
 
-
-    // Stats
 
     setText(
         "totalUsers",
@@ -468,8 +442,6 @@ function updateDashboard(data) {
         number(stats.pendingAccess)
     );
 
-
-    // User overview
 
     setText(
         "overviewTotalUsers",
@@ -495,17 +467,13 @@ function updateDashboard(data) {
     updateUserChart(users);
 
 
-    // Homes
-
     const progress =
         homes.progress || 0;
-
 
     setText(
         "onboardingProgress",
         `${progress}%`
     );
-
 
     setText(
         "fullyOnboarded",
@@ -528,22 +496,15 @@ function updateDashboard(data) {
             "onboardingProgressBar"
         );
 
-
     if (progressBar) {
-
         progressBar.style.width =
             `${progress}%`;
-
     }
 
 
-    // Attention
-
     setText(
         "attentionPendingAccess",
-        number(
-            attention.pendingAccess
-        )
+        number(attention.pendingAccess)
     );
 
     setText(
@@ -578,13 +539,12 @@ function updateDashboard(data) {
     renderActivity(
         data.recentActivity || []
     );
-
 }
 
 
-// =====================================================
+// ============================================================
 // USER CHART
-// =====================================================
+// ============================================================
 
 function updateUserChart(users) {
 
@@ -593,9 +553,7 @@ function updateUserChart(users) {
             "userOverviewChart"
         );
 
-
     if (!chart) return;
-
 
     const total =
         Number(users.total || 0);
@@ -606,23 +564,19 @@ function updateUserChart(users) {
     const pending =
         Number(users.pending || 0);
 
-
     if (!total) {
 
         chart.style.background =
             "conic-gradient(#e5e5eb 0 360deg)";
 
         return;
-
     }
-
 
     const activeDegrees =
         active / total * 360;
 
     const pendingDegrees =
         pending / total * 360;
-
 
     chart.style.background =
         `conic-gradient(
@@ -633,13 +587,12 @@ function updateUserChart(users) {
             ${activeDegrees + pendingDegrees}deg
             360deg
         )`;
-
 }
 
 
-// =====================================================
+// ============================================================
 // ACTIVITY
-// =====================================================
+// ============================================================
 
 function renderActivity(activities) {
 
@@ -648,76 +601,79 @@ function renderActivity(activities) {
             "recentActivity"
         );
 
-
     if (!container) return;
-
 
     if (!activities.length) {
 
-        container.innerHTML =
-            `
+        container.innerHTML = `
             <div class="empty-activity">
                 No recent activity.
             </div>
-            `;
+        `;
 
         return;
-
     }
-
 
     container.innerHTML =
         activities
             .map(
                 item => `
+                    <div class="activity-item">
 
-                <div class="activity-item">
+                        <div class="activity-icon">
+                            •
+                        </div>
 
-                    <div class="activity-icon">
-                        •
+                        <div>
+
+                            <strong>
+                                ${escapeHtml(
+                                    item.action
+                                )}
+                            </strong>
+
+                            <span>
+                                ${escapeHtml(
+                                    item.description
+                                )}
+                            </span>
+
+                        </div>
+
                     </div>
-
-                    <div>
-
-                        <strong>
-                            ${escapeHtml(
-                                item.action
-                            )}
-                        </strong>
-
-                        <span>
-                            ${escapeHtml(
-                                item.description
-                            )}
-                        </span>
-
-                    </div>
-
-                </div>
-
                 `
             )
             .join("");
-
 }
 
 
-// =====================================================
-// DASHBOARD VIEW
-// =====================================================
+// ============================================================
+// DASHBOARD / MODULE VIEW
+// ============================================================
 
 function showDashboard() {
 
     show(dashboardContent);
-
     hide(moduleContent);
 
+    document
+        .querySelectorAll("[data-module]")
+        .forEach(button => {
+            button.classList.remove("active");
+        });
+
+    const dashboardButton =
+        document.querySelector(
+            '[data-module="dashboard"]'
+        );
+
+    dashboardButton?.classList.add("active");
 }
 
 
-// =====================================================
+// ============================================================
 // SIDEBAR
-// =====================================================
+// ============================================================
 
 document
     .querySelectorAll("[data-module]")
@@ -730,50 +686,63 @@ document
                 const module =
                     button.dataset.module;
 
+                setActiveModule(module);
 
                 if (
                     module === "dashboard"
                 ) {
 
                     showDashboard();
-
                     loadDashboard();
 
                 } else {
 
                     showModule(module);
-
                 }
-
             }
         );
-
     });
 
 
-function showModule(module) {
+function setActiveModule(module) {
+
+    document
+        .querySelectorAll("[data-module]")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.module === module
+            );
+        });
+}
+
+
+// ============================================================
+// MODULE ROUTER
+// ============================================================
+
+async function showModule(module) {
 
     hide(dashboardContent);
-
     show(moduleContent);
 
+    if (module === "community") {
+        await renderCommunityConfiguration();
+        return;
+    }
+
+    if (module === "users") {
+        await renderUsersHomes();
+        return;
+    }
+
+    if (module === "roles") {
+        await renderCreateRole();
+        return;
+    }
 
     const modules = {
-
-        community: [
-            "Community Configuration",
-            "Configure community settings and platform information."
-        ],
-
-        users: [
-            "Users & Homes",
-            "Manage community users and households."
-        ],
-
-        roles: [
-            "Roles & Permissions",
-            "Manage roles and permissions."
-        ],
 
         access: [
             "Access Control",
@@ -799,79 +768,77 @@ function showModule(module) {
             "Support",
             "Get help with CommunityERP."
         ]
-
     };
 
-
     const content =
-        modules[module] ||
-        [
+        modules[module] || [
             "Module",
             "Module information."
         ];
 
-
     moduleContent.innerHTML = `
-
         <div class="module-placeholder">
 
             <h2>
-                ${content[0]}
+                ${escapeHtml(content[0])}
             </h2>
 
             <p>
-                ${content[1]}
+                ${escapeHtml(content[1])}
             </p>
 
         </div>
-
     `;
-
 }
 
 
-// =====================================================
+// ============================================================
 // QUICK ACTIONS
-// =====================================================
+// ============================================================
 
 newActionBtn?.addEventListener(
     "click",
     () => {
-
         show(
             quickActionsModal
         );
-
     }
 );
 
 
-document
-    .querySelectorAll("[data-action]")
-    .forEach(button => {
+document.addEventListener(
+    "click",
+    event => {
 
-        button.addEventListener(
-            "click",
-            () => {
+        const button =
+            event.target.closest(
+                ".quick-action-card[data-action]"
+            );
 
-                hide(
-                    quickActionsModal
-                );
+        if (!button) {
+            return;
+        }
 
+        event.preventDefault();
+        event.stopPropagation();
 
-                handleAction(
-                    button.dataset.action
-                );
+        const action =
+            button.dataset.action;
 
-            }
+        hide(
+            quickActionsModal
         );
 
-    });
+        handleAction(
+            action
+        );
+    }
+);
 
 
-// =====================================================
-// REUSABLE QUICK ACTION FORMS
-// =====================================================
+// ============================================================
+// QUICK ACTION FORMS
+// ============================================================
 
 const actionForms = {
 
@@ -882,10 +849,11 @@ const actionForms = {
         endpoint: "/api/roles",
 
         fields: `
-
             <div class="form-group">
 
-                <label>Role Name</label>
+                <label>
+                    Role Name
+                </label>
 
                 <input
                     name="name"
@@ -895,9 +863,12 @@ const actionForms = {
 
             </div>
 
+
             <div class="form-group">
 
-                <label>Description</label>
+                <label>
+                    Description
+                </label>
 
                 <textarea
                     name="description"
@@ -905,11 +876,9 @@ const actionForms = {
                 ></textarea>
 
             </div>
-
         `,
 
         button: "Create Role"
-
     },
 
 
@@ -920,10 +889,11 @@ const actionForms = {
         endpoint: "/api/homes",
 
         fields: `
-
             <div class="form-group">
 
-                <label>Household Name</label>
+                <label>
+                    Household Name
+                </label>
 
                 <input
                     name="name"
@@ -933,9 +903,12 @@ const actionForms = {
 
             </div>
 
+
             <div class="form-group">
 
-                <label>Unit</label>
+                <label>
+                    Unit
+                </label>
 
                 <input
                     name="unit"
@@ -945,9 +918,12 @@ const actionForms = {
 
             </div>
 
+
             <div class="form-group">
 
-                <label>Onboarding Status</label>
+                <label>
+                    Onboarding Status
+                </label>
 
                 <select name="status">
 
@@ -966,11 +942,9 @@ const actionForms = {
                 </select>
 
             </div>
-
         `,
 
         button: "Create Household"
-
     },
 
 
@@ -981,10 +955,11 @@ const actionForms = {
         endpoint: "/api/policies",
 
         fields: `
-
             <div class="form-group">
 
-                <label>Policy Title</label>
+                <label>
+                    Policy Title
+                </label>
 
                 <input
                     name="title"
@@ -994,9 +969,12 @@ const actionForms = {
 
             </div>
 
+
             <div class="form-group">
 
-                <label>Description</label>
+                <label>
+                    Description
+                </label>
 
                 <textarea
                     name="description"
@@ -1004,11 +982,9 @@ const actionForms = {
                 ></textarea>
 
             </div>
-
         `,
 
         button: "Update Policy"
-
     },
 
 
@@ -1019,10 +995,11 @@ const actionForms = {
         endpoint: "/api/modules",
 
         fields: `
-
             <div class="form-group">
 
-                <label>Module Name</label>
+                <label>
+                    Module Name
+                </label>
 
                 <input
                     name="name"
@@ -1032,9 +1009,12 @@ const actionForms = {
 
             </div>
 
+
             <div class="form-group">
 
-                <label>Status</label>
+                <label>
+                    Status
+                </label>
 
                 <select name="enabled">
 
@@ -1049,37 +1029,37 @@ const actionForms = {
                 </select>
 
             </div>
-
         `,
 
         button: "Save Configuration"
-
     }
 
 };
 
 
-// =====================================================
+// ============================================================
 // HANDLE QUICK ACTION
-// =====================================================
+// ============================================================
 
 function handleAction(action) {
 
     if (action === "add-user") {
 
-        show(addUserModal);
+        show(
+            addUserModal
+        );
 
         return;
-
     }
 
 
     if (action === "announcement") {
 
-        show(announcementModal);
+        show(
+            announcementModal
+        );
 
         return;
-
     }
 
 
@@ -1090,60 +1070,62 @@ function handleAction(action) {
         );
 
         return;
-
     }
 
 }
 
 
-// =====================================================
-// OPEN REUSABLE ACTION FORM
-// =====================================================
+// ============================================================
+// OPEN GENERIC ACTION FORM
+// ============================================================
 
 function openActionForm(config) {
 
-    const body =
-        genericActionModal.querySelector(
-            ".generic-action-body"
+    const modal =
+        document.getElementById(
+            "genericActionModal"
         );
 
+    const body =
+        document.getElementById(
+            "genericActionBody"
+        );
 
-    if (!body) return;
-
+    if (!modal || !body) {
+        return;
+    }
 
     body.innerHTML = `
 
         <form
+            id="dynamicActionForm"
             class="modal-form"
-            id="genericActionForm"
         >
 
-            <div class="modal-header">
+            <div
+                style="
+                    padding: 25px 28px 10px;
+                "
+            >
 
-                <div>
+                <h2>
+                    ${escapeHtml(
+                        config.title
+                    )}
+                </h2>
 
-                    <h2>
-                        ${config.title}
-                    </h2>
-
-                    <p>
-                        Complete the details below.
-                    </p>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="modal-close"
-                    data-action-close
-                >
-                    ×
-                </button>
+                <p>
+                    Complete the details below.
+                </p>
 
             </div>
 
 
-            <div style="padding: 25px 28px;">
+            <div
+                style="
+                    padding: 10px 28px 25px;
+                "
+            >
 
                 ${config.fields}
 
@@ -1155,16 +1137,19 @@ function openActionForm(config) {
                 <button
                     type="button"
                     class="secondary-btn"
-                    data-action-close
+                    data-close-modal="genericActionModal"
                 >
                     Cancel
                 </button>
+
 
                 <button
                     type="submit"
                     class="primary-btn"
                 >
-                    ${config.button}
+                    ${escapeHtml(
+                        config.button
+                    )}
                 </button>
 
             </div>
@@ -1175,52 +1160,127 @@ function openActionForm(config) {
 
 
     show(
-        genericActionModal
+        modal
     );
 
 
     const form =
         document.getElementById(
-            "genericActionForm"
+            "dynamicActionForm"
         );
 
 
-    form.addEventListener(
+    form?.addEventListener(
         "submit",
-        event =>
-            submitActionForm(
-                event,
-                form,
-                config
-            )
-    );
+        async event => {
+
+            event.preventDefault();
 
 
-    form
-        .querySelectorAll(
-            "[data-action-close]"
-        )
-        .forEach(button => {
+            const formData =
+                new FormData(form);
 
-            button.addEventListener(
-                "click",
-                () => {
 
-                    hide(
-                        genericActionModal
-                    );
+            const payload = {};
+
+
+            formData.forEach(
+                (value, key) => {
+
+                    payload[key] =
+                        value;
 
                 }
             );
 
-        });
+
+            if (
+                config.endpoint ===
+                "/api/modules"
+            ) {
+
+                payload.enabled =
+                    payload.enabled ===
+                    "true";
+
+            }
+
+
+            const button =
+                form.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (button) {
+
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "Saving...";
+
+            }
+
+
+            try {
+
+                const result =
+                    await api(
+                        config.endpoint,
+                        {
+                            method: "POST",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                alert(
+                    result.message ||
+                    "Saved successfully."
+                );
+
+
+                hide(
+                    modal
+                );
+
+
+                await loadDashboard();
+
+
+            } catch (error) {
+
+                alert(
+                    error.message
+                );
+
+
+            } finally {
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        config.button;
+
+                }
+
+            }
+
+        }
+    );
 
 }
-
-
-// =====================================================
-// SUBMIT REUSABLE ACTION
-// =====================================================
+// ============================================================
+// SUBMIT GENERIC ACTION FORM
+// ============================================================
 
 async function submitActionForm(
     event,
@@ -1310,11 +1370,9 @@ async function submitActionForm(
     }
 
 }
-
-
-// =====================================================
+// ============================================================
 // CLOSE MODALS
-// =====================================================
+// ============================================================
 
 document
     .querySelectorAll("[data-close-modal]")
@@ -1324,328 +1382,2063 @@ document
             "click",
             () => {
 
+                const modalId =
+                    button.dataset.closeModal;
+
                 const modal =
                     document.getElementById(
-                        button.dataset.closeModal
+                        modalId
                     );
 
-
                 hide(modal);
-
             }
         );
-
     });
 
 
-// =====================================================
+document
+    .querySelectorAll(".modal-overlay")
+    .forEach(overlay => {
+
+        overlay.addEventListener(
+            "click",
+            () => {
+
+                const modal =
+                    overlay.closest(".modal");
+
+                hide(modal);
+            }
+        );
+    });
+
+
+// ============================================================
 // ADD USER
-// =====================================================
+// ============================================================
 
-const addUserForm =
-    document.getElementById(
-        "addUserForm"
+document
+    .getElementById("addUserForm")
+    ?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+            const form =
+                event.currentTarget;
+
+            const formData =
+                new FormData(form);
+
+            const payload = {};
+
+            formData.forEach(
+                (value, key) => {
+                    payload[key] = value;
+                }
+            );
+
+            try {
+
+                const result =
+                    await api(
+                        "/api/users",
+                        {
+                            method: "POST",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+                alert(
+                    result.message ||
+                    "User created successfully."
+                );
+
+                form.reset();
+
+                hide(addUserModal);
+
+                await loadDashboard();
+
+            } catch (error) {
+
+                alert(
+                    error.message
+                );
+            }
+        }
     );
 
 
-addUserForm?.addEventListener(
-    "submit",
-    async event => {
-
-        event.preventDefault();
-
-
-        const formData =
-            new FormData(
-                addUserForm
-            );
-
-
-        const user =
-            Object.fromEntries(
-                formData.entries()
-            );
-
-
-        const button =
-            addUserForm.querySelector(
-                'button[type="submit"]'
-            );
-
-
-        button.disabled = true;
-
-        button.textContent =
-            "Creating...";
-
-
-        try {
-
-            const result =
-                await api(
-                    "/api/users",
-                    {
-                        method: "POST",
-
-                        body:
-                            JSON.stringify(
-                                user
-                            )
-                    }
-                );
-
-
-            alert(
-                result.message
-            );
-
-
-            addUserForm.reset();
-
-            hide(addUserModal);
-
-            await loadDashboard();
-
-
-        } catch (error) {
-
-            alert(
-                error.message
-            );
-
-
-        } finally {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Create User";
-
-        }
-
-    }
-);
-
-
-// =====================================================
+// ============================================================
 // ANNOUNCEMENT
-// =====================================================
+// ============================================================
 
-const announcementForm =
-    document.getElementById(
-        "announcementForm"
+document
+    .getElementById("announcementForm")
+    ?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+            const form =
+                event.currentTarget;
+
+            const formData =
+                new FormData(form);
+
+            const payload = {};
+
+            formData.forEach(
+                (value, key) => {
+
+                    if (
+                        key !== "attachments"
+                    ) {
+
+                        if (
+                            key === "inAppNotice" ||
+                            key === "pushNotification" ||
+                            key === "emailBroadcast"
+                        ) {
+
+                            payload[key] =
+                                true;
+
+                        } else {
+
+                            payload[key] =
+                                value;
+                        }
+                    }
+                }
+            );
+
+
+            payload.inAppNotice =
+                form.querySelector(
+                    '[name="inAppNotice"]'
+                )?.checked || false;
+
+            payload.pushNotification =
+                form.querySelector(
+                    '[name="pushNotification"]'
+                )?.checked || false;
+
+            payload.emailBroadcast =
+                form.querySelector(
+                    '[name="emailBroadcast"]'
+                )?.checked || false;
+
+
+            try {
+
+                const result =
+                    await api(
+                        "/api/announcements",
+                        {
+                            method: "POST",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+                alert(
+                    result.message ||
+                    "Announcement created successfully."
+                );
+
+                form.reset();
+
+                hide(
+                    announcementModal
+                );
+
+                await loadDashboard();
+
+            } catch (error) {
+
+                alert(
+                    error.message
+                );
+            }
+        }
     );
 
 
-announcementForm?.addEventListener(
-    "submit",
-    async event => {
+// ============================================================
+// COMMUNITY CONFIGURATION
+// ============================================================
 
-        event.preventDefault();
+async function renderCommunityConfiguration() {
+
+    moduleContent.innerHTML = `
+
+        <div class="new-module-page">
+
+            <div class="module-page-header">
+
+                <div>
+
+                    <div class="breadcrumb">
+                        Community Configuration
+                    </div>
+
+                    <h1>
+                        Community Configuration
+                    </h1>
+
+                    <p>
+                        Configure community information,
+                        access, complaints and billing.
+                    </p>
+
+                </div>
+
+                <div class="module-header-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelCommunityConfig"
+                    >
+                        Cancel Changes
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="saveCommunityConfiguration"
+                    >
+                        Save Configuration
+                    </button>
+
+                </div>
+
+            </div>
 
 
-        const formData =
-            new FormData(
-                announcementForm
+            <div
+                id="communityConfigStatus"
+                class="module-status"
+            ></div>
+
+
+            <div class="config-page-grid">
+
+                <div>
+
+                    <div class="config-card">
+
+                        <div class="config-card-header">
+
+                            <h2>
+                                Community Information
+                            </h2>
+
+                        </div>
+
+                        <div
+                            id="communityInformation"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="config-card">
+
+                        <div class="config-card-header">
+
+                            <h2>
+                                Access & Household Settings
+                            </h2>
+
+                        </div>
+
+                        <div
+                            id="communityAccess"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="config-card">
+
+                        <div class="config-card-header">
+
+                            <h2>
+                                Recent Configuration Changes
+                            </h2>
+
+                        </div>
+
+                        <div
+                            id="configurationActivity"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <div class="config-card">
+
+                        <div class="config-card-header">
+
+                            <h2>
+                                Complaint & SLA Settings
+                            </h2>
+
+                        </div>
+
+                        <div
+                            id="communitySla"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="config-card">
+
+                        <div class="config-card-header">
+
+                            <h2>
+                                Billing & Dues Settings
+                            </h2>
+
+                        </div>
+
+                        <div
+                            id="communityBilling"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+
+    try {
+
+        const [
+            config,
+            schema
+        ] = await Promise.all([
+
+            api(
+                "/api/community/config"
+            ),
+
+            api(
+                "/api/community/config-schema"
+            )
+
+        ]);
+
+
+        renderCommunityFields(
+            config,
+            schema
+        );
+
+
+        await loadConfigurationActivity();
+
+
+        document
+            .getElementById(
+                "saveCommunityConfiguration"
+            )
+            ?.addEventListener(
+                "click",
+                saveCommunityConfig
             );
 
 
-        const announcement =
-            Object.fromEntries(
-                formData.entries()
+        document
+            .getElementById(
+                "cancelCommunityConfig"
+            )
+            ?.addEventListener(
+                "click",
+                () => {
+                    renderCommunityConfiguration();
+                }
+            );
+
+    } catch (error) {
+
+        setStatus(
+            "communityConfigStatus",
+            error.message,
+            "error"
+        );
+    }
+}
+
+
+// ============================================================
+// CONFIG INPUT
+// ============================================================
+
+function renderConfigInput(
+    field,
+    value
+) {
+
+    if (field.type === "select") {
+
+        return `
+
+            <div class="config-field">
+
+                <label>
+                    ${escapeHtml(field.label)}
+                </label>
+
+                <select
+                    data-config-key="${escapeHtml(
+                        field.key
+                    )}"
+                >
+
+                    ${(field.options || [])
+                        .map(
+                            option => `
+
+                                <option
+                                    value="${escapeHtml(option)}"
+                                    ${
+                                        String(value) ===
+                                        String(option)
+                                            ? "selected"
+                                            : ""
+                                    }
+                                >
+                                    ${escapeHtml(option)}
+                                </option>
+
+                            `
+                        )
+                        .join("")}
+
+                </select>
+
+            </div>
+
+        `;
+    }
+
+
+    return `
+
+        <div class="config-field">
+
+            <label>
+                ${escapeHtml(field.label)}
+            </label>
+
+            <input
+                type="${escapeHtml(
+                    field.type || "text"
+                )}"
+                value="${escapeHtml(
+                    value ?? ""
+                )}"
+                data-config-key="${escapeHtml(
+                    field.key
+                )}"
+            >
+
+        </div>
+
+    `;
+}
+
+
+// ============================================================
+// CONFIG TOGGLE
+// ============================================================
+
+function renderConfigToggle(
+    field,
+    checked
+) {
+
+    return `
+
+        <div class="config-toggle-row">
+
+            <div>
+
+                <strong>
+                    ${escapeHtml(field.label)}
+                </strong>
+
+                <p>
+                    ${escapeHtml(
+                        field.description || ""
+                    )}
+                </p>
+
+            </div>
+
+            <label class="erp-switch">
+
+                <input
+                    type="checkbox"
+                    data-config-key="${escapeHtml(
+                        field.key
+                    )}"
+                    ${
+                        checked
+                            ? "checked"
+                            : ""
+                    }
+                >
+
+                <span class="erp-slider"></span>
+
+            </label>
+
+        </div>
+
+    `;
+}
+
+
+// ============================================================
+// RENDER CONFIGURATION
+// ============================================================
+
+function renderCommunityFields(
+    config,
+    schema
+) {
+
+    const information =
+        document.getElementById(
+            "communityInformation"
+        );
+
+    const access =
+        document.getElementById(
+            "communityAccess"
+        );
+
+    const sla =
+        document.getElementById(
+            "communitySla"
+        );
+
+    const billing =
+        document.getElementById(
+            "communityBilling"
+        );
+
+
+    if (information) {
+
+        information.innerHTML =
+            (schema.information || [])
+                .map(
+                    field =>
+                        renderConfigInput(
+                            field,
+                            config[field.key]
+                        )
+                )
+                .join("");
+    }
+
+
+    if (access) {
+
+        access.innerHTML =
+            [
+                ...(schema.age || []),
+                ...(schema.access || [])
+            ]
+                .map(
+                    field => {
+
+                        if (
+                            !field.type
+                        ) {
+
+                            return renderConfigToggle(
+                                field,
+                                Boolean(
+                                    config[field.key]
+                                )
+                            );
+                        }
+
+                        return renderConfigInput(
+                            field,
+                            config[field.key]
+                        );
+                    }
+                )
+                .join("");
+    }
+
+
+    if (sla) {
+
+        sla.innerHTML =
+            [
+                ...(schema.sla || []),
+                ...(schema.complaintToggles || [])
+            ]
+                .map(
+                    field => {
+
+                        if (
+                            !field.type
+                        ) {
+
+                            return renderConfigToggle(
+                                field,
+                                Boolean(
+                                    config[field.key]
+                                )
+                            );
+                        }
+
+                        return renderConfigInput(
+                            field,
+                            config[field.key]
+                        );
+                    }
+                )
+                .join("");
+    }
+
+
+    if (billing) {
+
+        billing.innerHTML =
+            [
+                ...(schema.billing || []),
+                ...(schema.billingToggles || [])
+            ]
+                .map(
+                    field => {
+
+                        if (
+                            !field.type
+                        ) {
+
+                            return renderConfigToggle(
+                                field,
+                                Boolean(
+                                    config[field.key]
+                                )
+                            );
+                        }
+
+                        return renderConfigInput(
+                            field,
+                            config[field.key]
+                        );
+                    }
+                )
+                .join("");
+    }
+}
+
+
+// ============================================================
+// CONFIG ACTIVITY
+// ============================================================
+
+async function loadConfigurationActivity() {
+
+    const container =
+        document.getElementById(
+            "configurationActivity"
+        );
+
+    if (!container) return;
+
+    try {
+
+        const activities =
+            await api(
+                "/api/community/config/activity"
             );
 
 
-        announcement.inAppNotice =
-            formData.has(
-                "inAppNotice"
-            );
+        if (!activities.length) {
+
+            container.innerHTML = `
+                <p>
+                    No configuration changes yet.
+                </p>
+            `;
+
+            return;
+        }
 
 
-        announcement.pushNotification =
-            formData.has(
-                "pushNotification"
-            );
+        container.innerHTML =
+            activities
+                .map(
+                    item => `
+
+                        <div class="activity-item">
+
+                            <div>
+
+                                <strong>
+                                    ${escapeHtml(
+                                        item.action
+                                    )}
+                                </strong>
+
+                                <span>
+                                    ${escapeHtml(
+                                        item.description
+                                    )}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    `
+                )
+                .join("");
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <p>
+                ${escapeHtml(
+                    error.message
+                )}
+            </p>
+        `;
+    }
+}
 
 
-        announcement.emailBroadcast =
-            formData.has(
-                "emailBroadcast"
-            );
+// ============================================================
+// SAVE COMMUNITY CONFIGURATION
+// ============================================================
+
+async function saveCommunityConfig() {
+
+    const payload = {};
 
 
-        const button =
-            announcementForm.querySelector(
-                'button[type="submit"]'
-            );
+    document
+        .querySelectorAll(
+            "[data-config-key]"
+        )
+        .forEach(element => {
 
+            const key =
+                element.dataset.configKey;
+
+            if (
+                element.type === "checkbox"
+            ) {
+
+                payload[key] =
+                    element.checked;
+
+            } else {
+
+                payload[key] =
+                    element.value;
+            }
+        });
+
+
+    const button =
+        document.getElementById(
+            "saveCommunityConfiguration"
+        );
+
+
+    if (button) {
 
         button.disabled = true;
-
-        button.textContent =
-            "Broadcasting...";
-
-
-        try {
-
-            const result =
-                await api(
-                    "/api/announcements",
-                    {
-                        method: "POST",
-
-                        body:
-                            JSON.stringify(
-                                announcement
-                            )
-                    }
-                );
+        button.textContent = "Saving...";
+    }
 
 
-            alert(
-                result.message
+    try {
+
+        const result =
+            await api(
+                "/api/community/config",
+                {
+                    method: "PUT",
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
             );
 
 
-            announcementForm.reset();
-
-            hide(
-                announcementModal
-            );
-
-
-            await loadDashboard();
+        setStatus(
+            "communityConfigStatus",
+            result.message,
+            "success"
+        );
 
 
-        } catch (error) {
+        await loadConfigurationActivity();
 
-            alert(
-                error.message
-            );
+    } catch (error) {
 
+        setStatus(
+            "communityConfigStatus",
+            error.message,
+            "error"
+        );
 
-        } finally {
+    } finally {
+
+        if (button) {
 
             button.disabled = false;
 
             button.textContent =
-                "Broadcast Announcement";
-
+                "Save Configuration";
         }
-
     }
-);
+}
 
 
-// =====================================================
-// LOGOUT
-// =====================================================
+// ============================================================
+// USERS & HOMES
+// ============================================================
 
-logoutBtn?.addEventListener(
-    "click",
-    () => {
+async function renderUsersHomes() {
 
-        currentEmail = "";
+    moduleContent.innerHTML = `
 
-        verificationToken = "";
+        <div class="new-module-page">
+
+            <div class="module-page-header">
+
+                <div>
+
+                    <div class="breadcrumb">
+                        Users & Homes
+                    </div>
+
+                    <h1>
+                        Users & Homes
+                    </h1>
+
+                    <p>
+                        Manage residents, owners and households.
+                    </p>
+
+                </div>
+
+                <div class="module-header-actions">
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="addHouseholdFromHomes"
+                    >
+                        Add New Household
+                    </button>
+
+                </div>
+
+            </div>
 
 
-        otpInputs.forEach(
-            input => {
-                input.value = "";
+            <div id="homeStats"></div>
+
+
+            <div class="config-card">
+
+                <div class="config-card-header">
+
+                    <h2>
+                        Household Directory
+                    </h2>
+
+                </div>
+
+                <div id="homeTable"></div>
+
+            </div>
+
+        </div>
+    `;
+
+
+    try {
+
+        const [
+            homes,
+            users
+        ] = await Promise.all([
+
+            api("/api/homes"),
+
+            api("/api/users")
+
+        ]);
+
+
+        renderHomeStats(
+            homes,
+            users
+        );
+
+
+        renderHomeTable({
+            homes,
+            users
+        });
+
+
+        document
+            .getElementById(
+                "addHouseholdFromHomes"
+            )
+            ?.addEventListener(
+                "click",
+                () => openHouseholdForm()
+            );
+
+    } catch (error) {
+
+        moduleContent.innerHTML += `
+            <div class="module-status error">
+                ${escapeHtml(
+                    error.message
+                )}
+            </div>
+        `;
+    }
+}
+
+
+// ============================================================
+// HOME STATS
+// ============================================================
+
+function renderHomeStats(
+    homes,
+    users
+) {
+
+    const container =
+        document.getElementById(
+            "homeStats"
+        );
+
+    if (!container) return;
+
+    const totalHomes =
+        homes.length;
+
+    const owners =
+        users.filter(
+            user =>
+                user.role === "Owner"
+        ).length;
+
+    const residents =
+        users.filter(
+            user =>
+                user.role === "Resident"
+        ).length;
+
+    const occupied =
+        homes.filter(
+            home =>
+                home.status !== "Vacant"
+        ).length;
+
+    const vacant =
+        Math.max(
+            totalHomes - occupied,
+            0
+        );
+
+
+    container.innerHTML = `
+
+        <div class="home-stat-grid">
+
+            ${homeStat(
+                "Total Residents",
+                residents,
+                "Current residents",
+                "residents"
+            )}
+
+            ${homeStat(
+                "Total Owners",
+                owners,
+                "Registered owners",
+                "owners"
+            )}
+
+            ${homeStat(
+                "Occupied Homes",
+                occupied,
+                "Homes with occupancy",
+                "occupied"
+            )}
+
+            ${homeStat(
+                "Vacant Units",
+                vacant,
+                "Available units",
+                "vacant"
+            )}
+
+        </div>
+    `;
+}
+
+
+function homeStat(
+    title,
+    value,
+    note,
+    type
+) {
+
+    return `
+
+        <div class="home-stat-card ${escapeHtml(type)}">
+
+            <span>
+                ${escapeHtml(title)}
+            </span>
+
+            <strong>
+                ${number(value)}
+            </strong>
+
+            <small>
+                ${escapeHtml(note)}
+            </small>
+
+        </div>
+    `;
+}
+
+
+// ============================================================
+// HOME TABLE
+// ============================================================
+
+function renderHomeTable(state) {
+
+    const container =
+        document.getElementById(
+            "homeTable"
+        );
+
+    if (!container) return;
+
+    const homes =
+        state.homes || [];
+
+    const users =
+        state.users || [];
+
+
+    if (!homes.length) {
+
+        container.innerHTML = `
+            <div class="empty-activity">
+                No households found.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Home ID
+                        </th>
+
+                        <th>
+                            Primary Member
+                        </th>
+
+                        <th>
+                            Member Type
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${homes
+                        .map(
+                            home => {
+
+                                const member =
+                                    users.find(
+                                        user =>
+                                            user.residence ===
+                                            home.unit
+                                    );
+
+                                const memberName =
+                                    member
+                                        ? `${member.firstName} ${member.lastName}`
+                                        : home.name || "—";
+
+                                const memberType =
+                                    member?.role ||
+                                    home.memberType ||
+                                    "—";
+
+                                return `
+
+                                    <tr>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                home.unit ||
+                                                home.id
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                memberName
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                memberType
+                                            )}
+                                        </td>
+
+                                        <td>
+
+                                            <span
+                                                class="status-badge ${statusClass(
+                                                    home.status
+                                                )}"
+                                            >
+                                                ${escapeHtml(
+                                                    home.status ||
+                                                    "—"
+                                                )}
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <button
+                                                type="button"
+                                                class="secondary-btn"
+                                                data-view-home="${escapeHtml(
+                                                    home.id
+                                                )}"
+                                            >
+                                                View
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="secondary-btn"
+                                                data-edit-home="${escapeHtml(
+                                                    home.id
+                                                )}"
+                                            >
+                                                Edit
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+                                `;
+                            }
+                        )
+                        .join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+
+
+    container
+        .querySelectorAll(
+            "[data-view-home]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () =>
+                        viewHousehold(
+                            button.dataset.viewHome,
+                            homes
+                        )
+                );
             }
         );
 
 
-        hide(dashboardScreen);
+    container
+        .querySelectorAll(
+            "[data-edit-home]"
+        )
+        .forEach(
+            button => {
 
-        hide(otpScreen);
+                button.addEventListener(
+                    "click",
+                    () =>
+                        editHousehold(
+                            button.dataset.editHome,
+                            homes
+                        )
+                );
+            }
+        );
+}
 
-        show(loginScreen);
 
+// ============================================================
+// HOUSEHOLD FORM
+// ============================================================
 
-        message(
-            loginMessage,
-            ""
+function openHouseholdForm(
+    home = null
+) {
+
+    const existing =
+        document.getElementById(
+            "householdDynamicForm"
         );
 
-        message(
-            otpMessage,
-            ""
+    existing?.remove();
+
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "householdDynamicForm";
+
+    modal.className =
+        "modal";
+
+
+    modal.innerHTML = `
+
+        <div class="modal-overlay"></div>
+
+        <div class="modal-box form-modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        ${
+                            home
+                                ? "Edit Household"
+                                : "Add Household"
+                        }
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    id="closeHouseholdForm"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <form
+                id="householdForm"
+                class="modal-form"
+            >
+
+                <div class="form-group">
+
+                    <label>
+                        Household Name
+                    </label>
+
+                    <input
+                        name="name"
+                        required
+                        value="${escapeHtml(
+                            home?.name || ""
+                        )}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Unit
+                    </label>
+
+                    <input
+                        name="unit"
+                        required
+                        value="${escapeHtml(
+                            home?.unit || ""
+                        )}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Member Type
+                    </label>
+
+                    <input
+                        name="memberType"
+                        value="${escapeHtml(
+                            home?.memberType || ""
+                        )}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select name="status">
+
+                        <option
+                            value="In Progress"
+                            ${
+                                home?.status ===
+                                "In Progress"
+                                    ? "selected"
+                                    : ""
+                            }
+                        >
+                            In Progress
+                        </option>
+
+                        <option
+                            value="Onboarded"
+                            ${
+                                home?.status ===
+                                "Onboarded"
+                                    ? "selected"
+                                    : ""
+                            }
+                        >
+                            Onboarded
+                        </option>
+
+                        <option
+                            value="Needs Attention"
+                            ${
+                                home?.status ===
+                                "Needs Attention"
+                                    ? "selected"
+                                    : ""
+                            }
+                        >
+                            Needs Attention
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelHouseholdForm"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                    >
+                        ${
+                            home
+                                ? "Save Changes"
+                                : "Create Household"
+                        }
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    `;
+
+
+    document.body.appendChild(modal);
+
+    show(modal);
+
+
+    document
+        .getElementById(
+            "closeHouseholdForm"
+        )
+        ?.addEventListener(
+            "click",
+            () => modal.remove()
         );
 
-    }
-);
+
+    document
+        .getElementById(
+            "cancelHouseholdForm"
+        )
+        ?.addEventListener(
+            "click",
+            () => modal.remove()
+        );
 
 
-// =====================================================
-// SEARCH
-// =====================================================
+    document
+        .getElementById(
+            "householdForm"
+        )
+        ?.addEventListener(
+            "submit",
+            async event => {
 
-const searchInput =
-    document.querySelector(
-        "[data-dashboard-search]"
+                event.preventDefault();
+
+                const form =
+                    event.currentTarget;
+
+                const formData =
+                    new FormData(form);
+
+                const payload = {};
+
+                formData.forEach(
+                    (value, key) => {
+                        payload[key] = value;
+                    }
+                );
+
+
+                try {
+
+                    const url =
+                        home
+                            ? `/api/homes/${encodeURIComponent(
+                                home.id
+                            )}`
+                            : "/api/homes";
+
+                    const method =
+                        home
+                            ? "PUT"
+                            : "POST";
+
+
+                    const result =
+                        await api(
+                            url,
+                            {
+                                method,
+                                body:
+                                    JSON.stringify(
+                                        payload
+                                    )
+                            }
+                        );
+
+
+                    alert(
+                        result.message ||
+                        "Household saved successfully."
+                    );
+
+
+                    modal.remove();
+
+                    await renderUsersHomes();
+
+                } catch (error) {
+
+                    alert(
+                        error.message
+                    );
+                }
+            }
+        );
+}
+
+
+// ============================================================
+// VIEW HOUSEHOLD
+// ============================================================
+
+function viewHousehold(
+    id,
+    homes
+) {
+
+    const home =
+        homes.find(
+            item => item.id === id
+        );
+
+    if (!home) return;
+
+    alert(
+        [
+            `Household: ${home.name || ""}`,
+            `Unit: ${home.unit || ""}`,
+            `Member Type: ${home.memberType || ""}`,
+            `Status: ${home.status || ""}`
+        ].join("\n")
     );
+}
 
 
-searchInput?.addEventListener(
-    "input",
-    () => {
+// ============================================================
+// EDIT HOUSEHOLD
+// ============================================================
 
-        const value =
-            searchInput.value
-                .trim()
-                .toLowerCase();
+function editHousehold(
+    id,
+    homes
+) {
+
+    const home =
+        homes.find(
+            item => item.id === id
+        );
+
+    if (!home) return;
+
+    openHouseholdForm(home);
+}
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function statusClass(status) {
+
+    return String(
+        status || ""
+    )
+        .toLowerCase()
+        .replaceAll(" ", "-");
+}
+
+
+// ============================================================
+// ROLES & PERMISSIONS
+// ============================================================
+
+async function renderCreateRole() {
+
+    moduleContent.innerHTML = `
+
+        <div class="new-module-page role-page">
+
+            <div class="module-page-header">
+
+                <div>
+
+                    <div class="breadcrumb">
+                        Roles & Permissions › Create New Role
+                    </div>
+
+                    <h1>
+                        Create New Role
+                    </h1>
+
+                    <p>
+                        Define role identity and configure
+                        granular module access permissions.
+                    </p>
+
+                </div>
+
+                <div class="module-header-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelRole"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="saveRole"
+                    >
+                        Save Role
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="roleStatus"
+                class="module-status"
+            ></div>
+
+
+            <div class="role-card">
+
+                <div class="role-card-header">
+
+                    <span>
+                        ♙
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Role Identity
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="role-identity-grid"
+                    id="roleIdentityFields"
+                ></div>
+
+            </div>
+
+
+            <div class="role-card permission-card">
+
+                <div class="permission-heading">
+
+                    <div>
+
+                        <h2>
+                            Permission Configuration
+                        </h2>
+
+                        <p>
+                            Configure detailed access levels
+                            across system modules.
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="grant-all-btn"
+                        id="grantAllPermissions"
+                    >
+                        Grant All Permissions
+                    </button>
+
+                </div>
+
+                <div
+                    id="permissionModules"
+                ></div>
+
+            </div>
+
+        </div>
+    `;
+
+
+    try {
+
+        const schema =
+            await api(
+                "/api/roles/schema"
+            );
+
+        renderRoleSchema(schema);
+
+
+        document
+            .getElementById(
+                "grantAllPermissions"
+            )
+            ?.addEventListener(
+                "click",
+                grantAllPermissions
+            );
+
+
+        document
+            .getElementById(
+                "saveRole"
+            )
+            ?.addEventListener(
+                "click",
+                saveRole
+            );
+
+
+        document
+            .getElementById(
+                "cancelRole"
+            )
+            ?.addEventListener(
+                "click",
+                () => {
+                    showDashboard();
+                    loadDashboard();
+                }
+            );
 
 
         document
             .querySelectorAll(
-                "[data-module]"
+                ".permission-module-toggle"
             )
-            .forEach(button => {
+            .forEach(
+                toggle => {
 
-                button.style.display =
-                    !value ||
-                    button.textContent
-                        .toLowerCase()
-                        .includes(value)
-                        ? ""
-                        : "none";
+                    toggle.addEventListener(
+                        "change",
+                        () => {
 
-            });
+                            const container =
+                                toggle.closest(
+                                    ".permission-module"
+                                );
 
-    }
-);
+                            container
+                                ?.querySelectorAll(
+                                    ".permission-check"
+                                )
+                                .forEach(
+                                    check => {
 
+                                        check.disabled =
+                                            !toggle.checked;
 
-// =====================================================
-// NOTIFICATIONS
-// =====================================================
+                                        if (
+                                            !toggle.checked
+                                        ) {
 
-document
-    .querySelector(
-        "[data-notifications]"
-    )
-    ?.addEventListener(
-        "click",
-        () => {
-
-            alert(
-                "No new notifications."
+                                            check.checked =
+                                                false;
+                                        }
+                                    }
+                                );
+                        }
+                    );
+                }
             );
 
-        }
-    );
+    } catch (error) {
+
+        setStatus(
+            "roleStatus",
+            error.message,
+            "error"
+        );
+    }
+}
 
 
-// =====================================================
-// INITIAL STATE
-// =====================================================
+// ============================================================
+// ROLE SCHEMA
+// ============================================================
 
-hide(otpScreen);
+function renderRoleSchema(
+    schema
+) {
 
-hide(dashboardScreen);
+    const identity =
+        schema.identity || {};
 
-hide(moduleContent);
 
-updateDashboardDate();
+    const identityContainer =
+        document.getElementById(
+            "roleIdentityFields"
+        );
+
+
+    const modulesContainer =
+        document.getElementById(
+            "permissionModules"
+        );
+
+
+    if (identityContainer) {
+
+        identityContainer.innerHTML = `
+
+            <div class="config-field">
+
+                <label>
+                    ${escapeHtml(
+                        identity.nameLabel ||
+                        "Role Name"
+                    )}
+                    <b>*</b>
+                </label>
+
+                <input
+                    id="roleName"
+                    placeholder="${escapeHtml(
+                        identity.namePlaceholder ||
+                        ""
+                    )}"
+                >
+
+            </div>
+
+
+            <div class="config-field">
+
+                <label>
+                    ${escapeHtml(
+                        identity.descriptionLabel ||
+                        "Description"
+                    )}
+                </label>
+
+                <textarea
+                    id="roleDescription"
+                    placeholder="${escapeHtml(
+                        identity.descriptionPlaceholder ||
+                        ""
+                    )}"
+                ></textarea>
+
+            </div>
+
+
+            <div class="config-field">
+
+                <label>
+                    ${escapeHtml(
+                        identity.templateLabel ||
+                        "Base Template"
+                    )}
+                </label>
+
+                <select id="roleTemplate">
+
+                    ${(schema.templates || [])
+                        .map(
+                            template => `
+
+                                <option
+                                    value="${escapeHtml(
+                                        template.value
+                                    )}"
+                                >
+                                    ${escapeHtml(
+                                        template.label
+                                    )}
+                                </option>
+
+                            `
+                        )
+                        .join("")}
+
+                </select>
+
+            </div>
+
+        `;
+    }
+
+
+    if (modulesContainer) {
+
+        modulesContainer.innerHTML =
+            (schema.modules || [])
+                .map(
+                    permissionModuleHtml
+                )
+                .join("");
+    }
+}
+
+
+// ============================================================
+// PERMISSION MODULE
+// ============================================================
+
+function permissionModuleHtml(
+    module
+) {
+
+    return `
+
+        <div class="permission-module">
+
+            <div class="permission-module-header">
+
+                <div class="permission-title">
+
+                    <span class="permission-icon">
+                        ${escapeHtml(
+                            module.icon || "▣"
+                        )}
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            ${escapeHtml(
+                                module.name
+                            )}
+                        </h3>
+
+                        <p>
+                            ${escapeHtml(
+                                module.description ||
+                                ""
+                            )}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <label class="erp-switch">
+
+                    <input
+                        type="checkbox"
+                        class="permission-module-toggle"
+                        data-module="${escapeHtml(
+                            module.key
+                        )}"
+                        ${
+                            module.defaultEnabled
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    <span class="erp-slider"></span>
+
+                </label>
+
+            </div>
+
+
+            <div class="permission-list">
+
+                ${(module.permissions || [])
+                    .map(
+                        permission => `
+
+                            <label class="permission-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="permission-check"
+                                    data-module="${escapeHtml(
+                                        module.key
+                                    )}"
+                                    data-permission="${escapeHtml(
+                                        permission.key
+                                    )}"
+                                    ${
+                                        permission.defaultEnabled
+                                            ? "checked"
+                                            : ""
+                                    }
+                                >
+
+                                <span>
+                                    ${escapeHtml(
+                                        permission.label ||
+                                        permission.name ||
+                                        permission.key
+                                    )}
+                                </span>
+
+                            </label>
+
+                        `
+                    )
+                    .join("")}
+
+            </div>
+
+        </div>
+
+    `;
+}

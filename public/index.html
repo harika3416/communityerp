@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,12 +17,9 @@
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 
-
 <body>
-
 
 <!-- =====================================================
      LOGIN SCREEN
@@ -35,9 +31,6 @@
 >
 
     <div class="login-container">
-
-
-        <!-- LEFT PANEL -->
 
         <div class="login-left">
 
@@ -53,9 +46,6 @@
 
             </div>
 
-
-            <!-- MENTOR'S ILLUSTRATION -->
-
             <div class="login-illustration">
 
                 <img
@@ -65,19 +55,14 @@
 
             </div>
 
-
             <p class="login-description">
-
                 Securely manage community configurations,
                 user access, and system infrastructure from
                 a centralized command center.
-
             </p>
 
         </div>
 
-
-        <!-- RIGHT PANEL -->
 
         <div class="login-right">
 
@@ -99,18 +84,13 @@
                 </h2>
 
                 <p class="form-subtitle">
-
                     Enter your credentials to access the secure console.
-
                 </p>
 
 
                 <label for="emailInput">
-
                     EMAIL OR PHONE NUMBER
-
                 </label>
-
 
                 <input
                     type="email"
@@ -172,7 +152,6 @@
 </div>
 
 
-
 <!-- =====================================================
      OTP SCREEN
 ===================================================== -->
@@ -183,7 +162,6 @@
 >
 
     <div class="otp-card">
-
 
         <div class="otp-brand">
 
@@ -204,23 +182,16 @@
                 ✓
             </div>
 
-
             <h2>
                 Verification Code Sent
             </h2>
 
-
             <p>
-
-                Enter the 6-digit code sent to your
-                email/phone.
-
+                Enter the 6-digit code sent to your email/phone.
             </p>
 
 
-            <div
-                class="otp-inputs"
-            >
+            <div class="otp-inputs">
 
                 <input
                     class="otp-input"
@@ -271,9 +242,7 @@
                 id="verifyBtn"
                 class="primary-btn"
             >
-
                 Verify & Login
-
             </button>
 
 
@@ -290,6 +259,7 @@
                 <button
                     type="button"
                     class="text-link"
+                    id="resendOtpBtn"
                 >
                     Resend
                 </button>
@@ -302,9 +272,7 @@
                 class="back-login"
                 onclick="location.reload()"
             >
-
                 ← Back to login
-
             </button>
 
         </div>
@@ -312,7 +280,6 @@
     </div>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -325,10 +292,11 @@
 >
 
 
-    <!-- SIDEBAR -->
+    <!-- =================================================
+         SIDEBAR
+    ================================================== -->
 
     <aside class="sidebar">
-
 
         <div class="sidebar-brand">
 
@@ -354,10 +322,7 @@
         <div class="sidebar-divider"></div>
 
 
-        <!-- MAIN NAVIGATION -->
-
         <nav class="sidebar-nav">
-
 
             <button
                 class="nav-item active"
@@ -470,12 +435,10 @@
 
             </button>
 
-
         </nav>
 
 
         <div class="sidebar-bottom">
-
 
             <button
                 class="nav-item"
@@ -524,14 +487,14 @@
 
             </button>
 
-
         </div>
 
     </aside>
 
 
-
-    <!-- MAIN AREA -->
+    <!-- =================================================
+         MAIN AREA
+    ================================================== -->
 
     <main class="dashboard-main">
 
@@ -540,14 +503,13 @@
 
         <header class="topbar">
 
-
             <div class="topbar-title">
 
-                <h1>
+                <h1 id="topbarTitle">
                     Dashboard
                 </h1>
 
-                <p>
+                <p id="topbarSubtitle">
                     Overview of your community platform
                 </p>
 
@@ -571,7 +533,6 @@
 
             <div class="topbar-actions">
 
-
                 <button
                     class="topbar-icon"
                     data-notifications
@@ -594,14 +555,14 @@
                     SA
                 </div>
 
-
             </div>
 
         </header>
 
 
-
-        <!-- DASHBOARD CONTENT -->
+        <!-- =================================================
+             DASHBOARD CONTENT
+        ================================================== -->
 
         <section
             id="dashboardContent"
@@ -609,10 +570,7 @@
         >
 
 
-            <!-- WELCOME -->
-
             <div class="welcome-row">
-
 
                 <div>
 
@@ -629,13 +587,10 @@
                     id="newActionBtn"
                     class="new-action-btn"
                 >
-
                     + New Action
-
                 </button>
 
             </div>
-
 
 
             <!-- STAT CARDS -->
@@ -746,12 +701,12 @@
 
                 </div>
 
-
             </div>
 
 
-
-            <!-- OVERVIEW ROW -->
+            <!-- =================================================
+                 OVERVIEW ROW
+            ================================================== -->
 
             <div class="overview-grid">
 
@@ -759,7 +714,6 @@
                 <!-- USER OVERVIEW -->
 
                 <div class="dashboard-card user-overview-card">
-
 
                     <div class="card-heading">
 
@@ -775,7 +729,6 @@
 
 
                     <div class="user-overview-body">
-
 
                         <div
                             id="userOverviewChart"
@@ -798,7 +751,6 @@
 
 
                         <div class="overview-legend">
-
 
                             <div class="legend-item">
 
@@ -844,7 +796,6 @@
 
                             </div>
 
-
                         </div>
 
                     </div>
@@ -852,11 +803,9 @@
                 </div>
 
 
-
                 <!-- HOME ONBOARDING -->
 
                 <div class="dashboard-card onboarding-card">
-
 
                     <div class="card-heading">
 
@@ -896,7 +845,6 @@
 
 
                     <div class="onboarding-stats">
-
 
                         <div>
 
@@ -939,7 +887,6 @@
 
                         </div>
 
-
                     </div>
 
                 </div>
@@ -947,8 +894,9 @@
             </div>
 
 
-
-            <!-- ATTENTION REQUIRED -->
+            <!-- =================================================
+                 ATTENTION REQUIRED
+            ================================================== -->
 
             <div class="section-title">
 
@@ -1066,15 +1014,14 @@
 
                 </div>
 
-
             </div>
 
 
-
-            <!-- RECENT ACTIVITY -->
+            <!-- =================================================
+                 RECENT ACTIVITY
+            ================================================== -->
 
             <div class="dashboard-card recent-activity-card">
-
 
                 <div class="card-heading">
 
@@ -1095,34 +1042,34 @@
                 >
 
                     <div class="empty-activity">
-
                         No recent activity.
-
                     </div>
 
                 </div>
 
             </div>
 
-
         </section>
 
 
-
-        <!-- MODULE CONTENT -->
+        <!-- =================================================
+             DYNAMIC MODULE CONTENT
+             
+             app.js renders:
+             - Community Configuration
+             - Users & Homes
+             - Roles & Permissions
+             - Other modules
+        ================================================== -->
 
         <section
             id="moduleContent"
             class="module-content hidden"
-        >
-
-        </section>
-
+        ></section>
 
     </main>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -1138,7 +1085,6 @@
 
 
     <div class="modal-box">
-
 
         <div class="modal-header">
 
@@ -1287,13 +1233,11 @@
 
             </button>
 
-
         </div>
 
     </div>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -1309,7 +1253,6 @@
 
 
     <div class="modal-box form-modal">
-
 
         <div class="modal-header">
 
@@ -1341,9 +1284,7 @@
             class="modal-form"
         >
 
-
             <div class="form-row">
-
 
                 <div class="form-group">
 
@@ -1374,12 +1315,10 @@
 
                 </div>
 
-
             </div>
 
 
             <div class="form-row">
-
 
                 <div class="form-group">
 
@@ -1409,12 +1348,10 @@
 
                 </div>
 
-
             </div>
 
 
             <div class="form-row">
-
 
                 <div class="form-group">
 
@@ -1443,7 +1380,6 @@
 
                 </div>
 
-
             </div>
 
 
@@ -1453,33 +1389,30 @@
                     Role & Access Level
                 </label>
 
-
                 <select
-                    name="role"
-                    required
-                >
+    name="role"
+    required
+>
+    <option value="">
+        Select role
+    </option>
 
-                    <option value="">
-                        Select role
-                    </option>
+    <option value="Resident">
+        Resident
+    </option>
 
-                    <option value="Resident">
-                        Resident
-                    </option>
+    <option value="Community Manager">
+        Community Manager
+    </option>
 
-                    <option value="Community Manager">
-                        Community Manager
-                    </option>
+    <option value="Security Head">
+        Security Head
+    </option>
 
-                    <option value="Security Head">
-                        Security Head
-                    </option>
-
-                    <option value="Super Admin">
-                        Super Admin
-                    </option>
-
-                </select>
+    <option value="Super Admin">
+        Super Admin
+    </option>
+</select>
 
             </div>
 
@@ -1504,7 +1437,6 @@
 
             </div>
 
-
         </form>
 
     </div>
@@ -1512,9 +1444,8 @@
 </div>
 
 
-
 <!-- =====================================================
-     NEW ANNOUNCEMENT MODAL
+     ANNOUNCEMENT MODAL
 ===================================================== -->
 
 <div
@@ -1526,7 +1457,6 @@
 
 
     <div class="modal-box announcement-modal">
-
 
         <div class="modal-header">
 
@@ -1558,7 +1488,6 @@
             class="modal-form"
         >
 
-
             <div class="form-group">
 
                 <label>
@@ -1575,7 +1504,6 @@
 
 
             <div class="form-row">
-
 
                 <div class="form-group">
 
@@ -1648,7 +1576,6 @@
 
                 </div>
 
-
             </div>
 
 
@@ -1683,7 +1610,6 @@
 
             <div class="notification-options">
 
-
                 <label class="checkbox-option">
 
                     <input
@@ -1703,50 +1629,26 @@
 
                     <input
                         type="checkbox"
-                        name="pushNotification"
+                        name="emailNotice"
                     >
 
                     <span>
-                        Push Notification
+                        Email Notification
                     </span>
 
                 </label>
-
-
-                <label class="checkbox-option">
-
-                    <input
-                        type="checkbox"
-                        name="emailBroadcast"
-                    >
-
-                    <span>
-                        Email Broadcast
-                    </span>
-
-                </label>
-
 
             </div>
 
 
-            <div class="announcement-actions">
-
+            <div class="form-actions">
 
                 <button
                     type="button"
                     class="secondary-btn"
                     data-close-modal="announcementModal"
                 >
-                    Save as Draft
-                </button>
-
-
-                <button
-                    type="button"
-                    class="secondary-btn"
-                >
-                    Schedule Later
+                    Cancel
                 </button>
 
 
@@ -1754,19 +1656,16 @@
                     type="submit"
                     class="primary-btn"
                 >
-                    Broadcast Announcement
+                    Publish Announcement
                 </button>
 
-
             </div>
-
 
         </form>
 
     </div>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -1781,8 +1680,7 @@
     <div class="modal-overlay"></div>
 
 
-    <div class="modal-box small-modal">
-
+    <div class="modal-box">
 
         <div class="modal-header">
 
@@ -1792,8 +1690,8 @@
                     Action
                 </h2>
 
-                <p id="genericActionMessage">
-                    This action is ready for backend integration.
+                <p id="genericActionSubtitle">
+                    Complete the required information.
                 </p>
 
             </div>
@@ -1809,31 +1707,21 @@
         </div>
 
 
-        <div class="generic-action-body">
-
-            <p>
-                Backend functionality for this module
-                will be connected in the next stage.
-            </p>
-
-
-            <button
-                class="primary-btn"
-                data-close-modal="genericActionModal"
-            >
-                Close
-            </button>
-
-        </div>
+        <div
+            id="genericActionBody"
+            class="modal-body"
+        ></div>
 
     </div>
 
 </div>
 
 
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
 
 <script src="app.js"></script>
-
 
 </body>
 
