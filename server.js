@@ -3,55 +3,76 @@ const cors = require("cors");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const path = require("path");
-
 require("dotenv").config();
 
 const app = express();
-
-
-// =====================================
-// MIDDLEWARE
-// =====================================
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 
-// =====================================
-// FRONTEND
-// =====================================
+// ==============================
+// DATA
+// ==============================
 
-const publicPath = path.join(__dirname, "public");
+const data = {
+    users: [],
+    homes: [],
+    roles: [],
+    policies: [],
+    announcements: [],
+    modules: [],
+    activities: []
+};
 
-app.use(express.static(publicPath));
+const otpStore = new Map();
 
 
-// =====================================
-// HOME PAGE
-// =====================================
+// ==============================
+// HELPERS
+// ==============================
 
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(publicPath, "index.html")
+const id = prefix =>
+    `${prefix}-${crypto.randomBytes(6).toString("hex")}`;
+
+function activity(action, description) {
+    data.activities.unshift({
+        id: id("ACT"),
+        action,
+        description,
+        createdAt: new Date().toISOString()
+    });
+
+    data.activities.splice(10);
+}
+
+function createItem(collection, prefix, fields) {
+    const item = {
+        id: id(prefix),
+        ...fields,
+        createdAt: new Date().toISOString()
+    };
+
+    collection.push(item);
+    return item;
+}
+
+function required(body, fields) {
+    return fields.every(
+        field =>
+            String(body[field] || "").trim()
     );
-});
+}
 
 
-// =====================================
-// PORT
-// =====================================
-
-const PORT = process.env.PORT || 3000;
-
-
-// =====================================
-// GMAIL TRANSPORTER
-// =====================================
+// ==============================
+// OTP
+// ==============================
 
 const transporter = nodemailer.createTransport({
-
     service: "gmail",
-
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -59,366 +80,461 @@ const transporter = nodemailer.createTransport({
 });
 
 
-// =====================================
-// OTP STORAGE
-// =====================================
-
-const otpStore = new Map();
-
-
-// =====================================
-// GENERATE OTP
-// =====================================
-
-function generateOTP() {
-
-    return crypto
-        .randomInt(100000, 1000000)
-        .toString();
-}
-
-
-// =====================================
-// GENERATE VERIFICATION TOKEN
-// =====================================
-
-function generateVerificationToken() {
-
-    return crypto
-        .randomBytes(32)
-        .toString("hex");
-}
-
-
-// =====================================
-// GENERATE OTP API
-// =====================================
-
-app.post(
-    "/api/auth/generate-otp",
-    async (req, res) => {
-
-        try {
-
-            const email =
-                String(req.body.email || "")
-                    .trim()
-                    .toLowerCase();
-
-
-            if (!email) {
-
-                return res.status(400).json({
-
-                    message:
-                        "Email is required."
-                });
-            }
-
-
-            // Generate OTP
-
-            const otp =
-                generateOTP();
-
-
-            // Generate verification token
-
-            const verificationToken =
-                generateVerificationToken();
-
-
-            // Store OTP information
-
-            otpStore.set(email, {
-
-                otp: otp,
-
-                verificationToken:
-                    verificationToken,
-
-                expiresAt:
-                    Date.now() +
-                    5 * 60 * 1000
-            });
-
-
-            // Send OTP email
-
-            await transporter.sendMail({
-
-                from:
-                    `"CommunityERP" <${process.env.EMAIL_USER}>`,
-
-                to: email,
-
-                subject:
-                    "CommunityERP - Verification Code",
-
-                html: `
-                    <div style="
-                        font-family: Arial, sans-serif;
-                        max-width: 500px;
-                        margin: auto;
-                        padding: 20px;
-                    ">
-
-                        <h2 style="
-                            color: #6c4cff;
-                        ">
-                            CommunityERP
-                        </h2>
-
-                        <p>Hello,</p>
-
-                        <p>
-                            Your verification code for the
-                            CommunityERP Super Admin Console is:
-                        </p>
-
-                        <div style="
-                            font-size: 32px;
-                            font-weight: bold;
-                            letter-spacing: 8px;
-                            padding: 20px;
-                            background: #f4f2ff;
-                            text-align: center;
-                            border-radius: 10px;
-                            margin: 20px 0;
-                        ">
-                            ${otp}
-                        </div>
-
-                        <p>
-                            This code will expire in
-                            <strong>5 minutes</strong>.
-                        </p>
-
-                        <p>
-                            If you did not request this code,
-                            you can safely ignore this email.
-                        </p>
-
-                        <p>
-                            Regards,<br>
-                            CommunityERP Team
-                        </p>
-
-                    </div>
-                `
-            });
-
-
-            console.log(
-                `OTP sent successfully to ${email}`
-            );
-
-
-            return res.json({
-
-                message:
-                    "Verification code sent successfully.",
-
-                verificationToken:
-                    verificationToken
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Email sending error:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                message:
-                    "Failed to send verification code."
-            });
-        }
-    }
-);
-
-
-// =====================================
-// VERIFY OTP API
-// =====================================
-
-app.post(
-    "/api/auth/verify-otp",
-    (req, res) => {
-
-        try {
-
-            const email =
-                String(req.body.email || "")
-                    .trim()
-                    .toLowerCase();
-
-
-            const otp =
-                String(req.body.otp || "")
-                    .trim();
-
-
-            const verificationToken =
-                String(
-                    req.body.verificationToken || ""
-                ).trim();
-
-
-            // Validate request
-
-            if (
-                !email ||
-                !otp ||
-                !verificationToken
-            ) {
-
-                return res.status(400).json({
-
-                    message:
-                        "Email, OTP and verification token are required."
-                });
-            }
-
-
-            // Find stored OTP
-
-            const storedData =
-                otpStore.get(email);
-
-
-            if (!storedData) {
-
-                return res.status(400).json({
-
-                    message:
-                        "OTP not found. Please request a new OTP."
-                });
-            }
-
-
-            // Check expiration
-
-            if (
-                Date.now() >
-                storedData.expiresAt
-            ) {
-
-                otpStore.delete(email);
-
-                return res.status(400).json({
-
-                    message:
-                        "OTP has expired. Please request a new OTP."
-                });
-            }
-
-
-            // Check verification token
-
-            if (
-                storedData.verificationToken !==
-                verificationToken
-            ) {
-
-                return res.status(401).json({
-
-                    message:
-                        "Invalid verification session. Please request a new OTP."
-                });
-            }
-
-
-            // Check OTP
-
-            if (
-                storedData.otp !== otp
-            ) {
-
-                return res.status(401).json({
-
-                    message:
-                        "Invalid OTP."
-                });
-            }
-
-
-            // Successful verification
-
-            otpStore.delete(email);
-
-
-            return res.json({
-
-                message:
-                    "OTP verified successfully.",
-
-                authenticated:
-                    true
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "OTP verification error:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                message:
-                    "OTP verification failed."
-            });
-        }
-    }
-);
-
-
-// =====================================
-// HEALTH CHECK
-// =====================================
-
-app.get(
-    "/api/health",
-    (req, res) => {
+app.post("/api/auth/generate-otp", async (req, res) => {
+
+    const email =
+        String(req.body.email || "")
+            .trim()
+            .toLowerCase();
+
+    if (!email)
+        return res.status(400).json({
+            message: "Email is required."
+        });
+
+    const otp =
+        crypto.randomInt(100000, 1000000).toString();
+
+    const token =
+        crypto.randomBytes(32).toString("hex");
+
+    otpStore.set(email, {
+        otp,
+        token,
+        expiresAt: Date.now() + 5 * 60 * 1000
+    });
+
+    try {
+
+        await transporter.sendMail({
+            from: `"CommunityERP" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: "CommunityERP - Verification Code",
+            html: `
+                <h2>CommunityERP</h2>
+                <p>Your verification code is:</p>
+                <h1>${otp}</h1>
+                <p>This code expires in 5 minutes.</p>
+            `
+        });
 
         res.json({
+            message: "Verification code sent successfully.",
+            verificationToken: token
+        });
 
-            status: "UP",
+    } catch (error) {
 
-            application:
-                "CommunityERP"
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to send verification code."
         });
     }
-);
+});
 
 
-// =====================================
-// LOCAL SERVER
-// =====================================
+app.post("/api/auth/verify-otp", (req, res) => {
+
+    const email =
+        String(req.body.email || "")
+            .trim()
+            .toLowerCase();
+
+    const otp =
+        String(req.body.otp || "").trim();
+
+    const token =
+        String(req.body.verificationToken || "").trim();
+
+    const stored = otpStore.get(email);
+
+    if (!stored)
+        return res.status(400).json({
+            message: "OTP not found. Please request a new OTP."
+        });
+
+    if (Date.now() > stored.expiresAt) {
+
+        otpStore.delete(email);
+
+        return res.status(400).json({
+            message: "OTP has expired."
+        });
+    }
+
+    if (stored.token !== token)
+        return res.status(401).json({
+            message: "Invalid verification session."
+        });
+
+    if (stored.otp !== otp)
+        return res.status(401).json({
+            message: "Invalid OTP."
+        });
+
+    otpStore.delete(email);
+
+    activity(
+        "Admin Login",
+        `${email} logged into the console`
+    );
+
+    res.json({
+        message: "OTP verified successfully.",
+        authenticated: true
+    });
+});
+
+
+// ==============================
+// DASHBOARD
+// ==============================
+
+app.get("/api/dashboard", (req, res) => {
+
+    const users = data.users;
+
+    const totalUsers = users.length;
+
+    const activeUsers =
+        users.filter(u => u.status === "Active").length;
+
+    const pendingUsers =
+        users.filter(u => u.status === "Pending").length;
+
+    const suspendedUsers =
+        users.filter(u => u.status === "Suspended").length;
+
+    const totalHomes = data.homes.length;
+
+    const pendingAccess =
+        users.filter(
+            u => u.accessStatus === "Pending"
+        ).length;
+
+    const fullyOnboarded =
+        data.homes.filter(
+            h => h.status === "Onboarded"
+        ).length;
+
+    const inProgress =
+        data.homes.filter(
+            h => h.status === "In Progress"
+        ).length;
+
+    const needsAttention =
+        data.homes.filter(
+            h => h.status === "Needs Attention"
+        ).length;
+
+    const progress =
+        totalHomes
+            ? Math.round(
+                fullyOnboarded / totalHomes * 100
+            )
+            : 0;
+
+    res.json({
+
+        stats: {
+            totalUsers,
+            activeUsers,
+            totalHomes,
+            pendingAccess
+        },
+
+        userOverview: {
+            total: totalUsers,
+            active: activeUsers,
+            pending: pendingUsers,
+            suspended: suspendedUsers
+        },
+
+        homeOnboarding: {
+            progress,
+            fullyOnboarded,
+            inProgress,
+            needsAttention
+        },
+
+        attentionRequired: {
+            pendingAccess,
+            homesNeedsAttention: needsAttention,
+            pendingGateApprovals: 0,
+            vendorContractsDue: 0,
+            slaBreachedComplaints: 0
+        },
+
+        recentActivity: data.activities
+
+    });
+});
+
+
+// ==============================
+// USERS
+// ==============================
+
+app.get("/api/users", (req, res) => {
+    res.json(data.users);
+});
+
+
+app.post("/api/users", (req, res) => {
+
+    const fields = [
+        "firstName",
+        "lastName",
+        "email",
+        "role"
+    ];
+
+    if (!required(req.body, fields))
+        return res.status(400).json({
+            message:
+                "First name, last name, email and role are required."
+        });
+
+    const email =
+        req.body.email.trim().toLowerCase();
+
+    if (
+        data.users.some(
+            user => user.email === email
+        )
+    )
+        return res.status(409).json({
+            message:
+                "A user with this email already exists."
+        });
+
+    const user = createItem(
+        data.users,
+        "USR",
+        {
+            firstName: req.body.firstName.trim(),
+            lastName: req.body.lastName.trim(),
+            email,
+            phone: req.body.phone || "",
+            residence: req.body.residence || "",
+            moveInDate: req.body.moveInDate || "",
+            role: req.body.role,
+            status: "Active",
+            accessStatus: "Approved"
+        }
+    );
+
+    activity(
+        "User Created",
+        `${user.firstName} ${user.lastName} was added`
+    );
+
+    res.status(201).json({
+        message: "User created successfully.",
+        user
+    });
+});
+
+
+// ==============================
+// ANNOUNCEMENTS
+// ==============================
+
+app.get("/api/announcements", (req, res) => {
+    res.json(data.announcements);
+});
+
+
+app.post("/api/announcements", (req, res) => {
+
+    if (
+        !required(
+            req.body,
+            ["title", "category", "audience", "message"]
+        )
+    )
+        return res.status(400).json({
+            message:
+                "Title, category, audience and message are required."
+        });
+
+    const announcement = createItem(
+        data.announcements,
+        "ANN",
+        {
+            title: req.body.title.trim(),
+            category: req.body.category,
+            audience: req.body.audience,
+            message: req.body.message.trim(),
+            inAppNotice: !!req.body.inAppNotice,
+            pushNotification: !!req.body.pushNotification,
+            emailBroadcast: !!req.body.emailBroadcast,
+            status: "Published"
+        }
+    );
+
+    activity(
+        "Announcement Created",
+        `"${announcement.title}" was published`
+    );
+
+    res.status(201).json({
+        message:
+            "Announcement broadcast successfully.",
+        announcement
+    });
+});
+
+
+// ==============================
+// QUICK ACTIONS
+// ==============================
+
+app.post("/api/roles", (req, res) => {
+
+    if (!required(req.body, ["name"]))
+        return res.status(400).json({
+            message: "Role name is required."
+        });
+
+    const role = createItem(
+        data.roles,
+        "ROLE",
+        {
+            name: req.body.name.trim(),
+            description: req.body.description || ""
+        }
+    );
+
+    activity(
+        "Role Created",
+        `${role.name} role was created`
+    );
+
+    res.status(201).json({
+        message: "Role created successfully.",
+        role
+    });
+});
+
+
+app.post("/api/homes", (req, res) => {
+
+    if (!required(req.body, ["name", "unit"]))
+        return res.status(400).json({
+            message:
+                "Household name and unit are required."
+        });
+
+    const home = createItem(
+        data.homes,
+        "HOME",
+        {
+            name: req.body.name.trim(),
+            unit: req.body.unit.trim(),
+            status:
+                req.body.status || "In Progress"
+        }
+    );
+
+    activity(
+        "Household Added",
+        `${home.name} was added`
+    );
+
+    res.status(201).json({
+        message:
+            "Household created successfully.",
+        household: home
+    });
+});
+
+
+app.post("/api/policies", (req, res) => {
+
+    if (!required(req.body, ["title"]))
+        return res.status(400).json({
+            message: "Policy title is required."
+        });
+
+    const policy = createItem(
+        data.policies,
+        "POL",
+        {
+            title: req.body.title.trim(),
+            description: req.body.description || ""
+        }
+    );
+
+    activity(
+        "Policy Updated",
+        `${policy.title} was updated`
+    );
+
+    res.status(201).json({
+        message: "Policy updated successfully.",
+        policy
+    });
+});
+
+
+app.post("/api/modules", (req, res) => {
+
+    if (!required(req.body, ["name"]))
+        return res.status(400).json({
+            message: "Module name is required."
+        });
+
+    const module = createItem(
+        data.modules,
+        "MOD",
+        {
+            name: req.body.name.trim(),
+            enabled: req.body.enabled !== false
+        }
+    );
+
+    activity(
+        "Module Configured",
+        `${module.name} module was configured`
+    );
+
+    res.status(201).json({
+        message: "Module configured successfully.",
+        module
+    });
+});
+
+
+// ==============================
+// HEALTH
+// ==============================
+
+app.get("/api/health", (req, res) => {
+
+    res.json({
+        status: "UP",
+        application: "CommunityERP"
+    });
+
+});
+
+
+// ==============================
+// SERVER
+// ==============================
 
 if (require.main === module) {
 
-    app.listen(
-        PORT,
-        () => {
+    app.listen(PORT, () => {
 
-            console.log(
-                `CommunityERP server running on port ${PORT}`
-            );
-        }
-    );
+        console.log(
+            `CommunityERP server running on port ${PORT}`
+        );
+
+    });
+
 }
-
-
-// =====================================
-// VERCEL
-// =====================================
 
 module.exports = app;

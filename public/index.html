@@ -1,85 +1,1840 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CommunityERP - Super Admin Console</title>
-  <link rel="stylesheet" href="/style.css" />
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        CommunityERP - Super Admin Console
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
+
 <body>
-  <main id="app">
-    <section id="loginScreen" class="layout">
-      <div class="brand-panel">
-        <div>
-          <h1>CommunityERP</h1>
-          <p>Super Admin Console</p>
-        </div>
-        <div class="hero-art">
-          <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
-          <div class="cube c1">⌘</div><div class="cube c2">▣</div><div class="cube c3">◈</div>
-          <div class="cube c4">↗</div><div class="cube c5">◎</div>
-          <div class="lines"></div>
-        </div>
-        <p class="brand-copy">Securely manage community configurations, user access,<br/>and system infrastructure from a centralized command center.</p>
-      </div>
 
-      <div class="form-panel">
-        <span class="secure">● SECURE PORTAL</span>
-        <div class="form-wrap">
-          <h2>Welcome Back</h2>
-          <p class="subtitle">Enter your credentials to access the secure console.</p>
-          <label>EMAIL OR PHONE NUMBER</label>
-          <input id="identifier" type="text" placeholder="admin@communityerp.com" autocomplete="username" />
-          <button id="generateBtn">Generate OTP <span>→</span></button>
-          <div class="divider"></div>
-          <div class="links">
-            <button class="text-btn" id="forgotBtn">◉ Forgot Password?</button>
-            <button class="text-btn" id="supportBtn">♧ Contact Support</button>
-          </div>
-          <p id="loginMessage" class="message"></p>
-        </div>
-      </div>
-    </section>
 
-    <section id="otpScreen" class="otp-screen hidden">
-      <div class="otp-logo">▦</div>
-      <h1>CommunityERP</h1>
-      <div class="otp-card">
-        <h2>Verification Code Sent</h2>
-        <p>Enter the 6-digit code sent to your email/phone.</p>
-        <div class="otp-inputs">
-          <input maxlength="1" inputmode="numeric" />
-          <input maxlength="1" inputmode="numeric" />
-          <input maxlength="1" inputmode="numeric" />
-          <input maxlength="1" inputmode="numeric" />
-          <input maxlength="1" inputmode="numeric" />
-          <input maxlength="1" inputmode="numeric" />
-        </div>
-        <button id="verifyBtn">Verify &amp; Login <span>→</span></button>
-        <p id="resendText">Didn't receive the code? <button id="resendBtn" class="link-btn">Resend</button> in <b id="timer">00:44</b></p>
-        <button id="backBtn" class="back-btn">← Back to login</button>
-        <p id="otpMessage" class="message"></p>
-        <p id="demoOtp" class="demo"></p>
-      </div>
-    </section>
+<!-- =====================================================
+     LOGIN SCREEN
+===================================================== -->
 
-    <section id="dashboardScreen" class="dashboard hidden">
-      <header>
-        <div><strong>CommunityERP</strong><small>Super Admin Console</small></div>
-        <button id="logoutBtn">Logout</button>
-      </header>
-      <div class="dashboard-body">
-        <div class="dash-icon">✓</div>
-        <h2>Welcome to the Super Admin Console</h2>
-        <p>You have successfully authenticated with OTP.</p>
-        <div class="stat-row">
-          <div><b>Authenticated</b><span>Secure session active</span></div>
-          <div><b>Portal</b><span>Super Admin</span></div>
-          <div><b>Access</b><span>Granted</span></div>
+<div
+    id="loginScreen"
+    class="screen login-screen"
+>
+
+    <div class="login-container">
+
+
+        <!-- LEFT PANEL -->
+
+        <div class="login-left">
+
+            <div class="brand-area">
+
+                <h1>
+                    CommunityERP
+                </h1>
+
+                <p>
+                    Super Admin Console
+                </p>
+
+            </div>
+
+
+            <!-- MENTOR'S ILLUSTRATION -->
+
+            <div class="login-illustration">
+
+                <img
+                    src="communityerp-login-illustration.png"
+                    alt="CommunityERP platform illustration"
+                >
+
+            </div>
+
+
+            <p class="login-description">
+
+                Securely manage community configurations,
+                user access, and system infrastructure from
+                a centralized command center.
+
+            </p>
+
         </div>
-      </div>
-    </section>
-  </main>
-  <script src="/app.js"></script>
+
+
+        <!-- RIGHT PANEL -->
+
+        <div class="login-right">
+
+            <div class="secure-badge">
+
+                <span>
+                    ●
+                </span>
+
+                SECURE PORTAL
+
+            </div>
+
+
+            <div class="login-form-container">
+
+                <h2>
+                    Welcome Back
+                </h2>
+
+                <p class="form-subtitle">
+
+                    Enter your credentials to access the secure console.
+
+                </p>
+
+
+                <label for="emailInput">
+
+                    EMAIL OR PHONE NUMBER
+
+                </label>
+
+
+                <input
+                    type="email"
+                    id="emailInput"
+                    placeholder="admin@communityerp.com"
+                    autocomplete="email"
+                >
+
+
+                <button
+                    id="generateBtn"
+                    class="primary-btn"
+                >
+
+                    <span>
+                        Generate OTP
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="loginMessage"
+                    class="message"
+                ></div>
+
+
+                <div class="login-divider"></div>
+
+
+                <div class="login-links">
+
+                    <button
+                        type="button"
+                        class="text-link"
+                    >
+                        ◉ Forgot Password?
+                    </button>
+
+                    <button
+                        type="button"
+                        class="text-link"
+                    >
+                        ♧ Contact Support
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     OTP SCREEN
+===================================================== -->
+
+<div
+    id="otpScreen"
+    class="screen otp-screen hidden"
+>
+
+    <div class="otp-card">
+
+
+        <div class="otp-brand">
+
+            <h1>
+                CommunityERP
+            </h1>
+
+            <p>
+                Super Admin Console
+            </p>
+
+        </div>
+
+
+        <div class="otp-content">
+
+            <div class="otp-icon">
+                ✓
+            </div>
+
+
+            <h2>
+                Verification Code Sent
+            </h2>
+
+
+            <p>
+
+                Enter the 6-digit code sent to your
+                email/phone.
+
+            </p>
+
+
+            <div
+                class="otp-inputs"
+            >
+
+                <input
+                    class="otp-input"
+                    type="text"
+                    maxlength="1"
+                    inputmode="numeric"
+                >
+
+                <input
+                    class="otp-input"
+                    type="text"
+                    maxlength="1"
+                    inputmode="numeric"
+                >
+
+                <input
+                    class="otp-input"
+                    type="text"
+                    maxlength="1"
+                    inputmode="numeric"
+                >
+
+                <input
+                    class="otp-input"
+                    type="text"
+                    maxlength="1"
+                    inputmode="numeric"
+                >
+
+                <input
+                    class="otp-input"
+                    type="text"
+                    maxlength="1"
+                    inputmode="numeric"
+                >
+
+                <input
+                    class="otp-input"
+                    type="text"
+                    maxlength="1"
+                    inputmode="numeric"
+                >
+
+            </div>
+
+
+            <button
+                id="verifyBtn"
+                class="primary-btn"
+            >
+
+                Verify & Login
+
+            </button>
+
+
+            <div
+                id="otpMessage"
+                class="message"
+            ></div>
+
+
+            <p class="resend-text">
+
+                Didn't receive the code?
+
+                <button
+                    type="button"
+                    class="text-link"
+                >
+                    Resend
+                </button>
+
+            </p>
+
+
+            <button
+                type="button"
+                class="back-login"
+                onclick="location.reload()"
+            >
+
+                ← Back to login
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     DASHBOARD SCREEN
+===================================================== -->
+
+<div
+    id="dashboardScreen"
+    class="screen dashboard-screen hidden"
+>
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                ▦
+            </div>
+
+            <div>
+
+                <h2>
+                    CommunityERP
+                </h2>
+
+                <span>
+                    Super Admin Console
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-divider"></div>
+
+
+        <!-- MAIN NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+
+            <button
+                class="nav-item active"
+                data-module="dashboard"
+            >
+
+                <span class="nav-icon">
+                    ▦
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="community"
+            >
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    Community Configuration
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="users"
+            >
+
+                <span class="nav-icon">
+                    ♟
+                </span>
+
+                <span>
+                    Users & Homes
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="roles"
+            >
+
+                <span class="nav-icon">
+                    ●
+                </span>
+
+                <span>
+                    Roles & Permissions
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="access"
+            >
+
+                <span class="nav-icon">
+                    ▣
+                </span>
+
+                <span>
+                    Access Control
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="audit"
+            >
+
+                <span class="nav-icon">
+                    ◷
+                </span>
+
+                <span>
+                    Audit Logs
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="alerts"
+            >
+
+                <span class="nav-icon">
+                    ♟
+                </span>
+
+                <span>
+                    Alerts
+                </span>
+
+            </button>
+
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+
+            <button
+                class="nav-item"
+                data-module="settings"
+            >
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    System Settings
+                </span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-module="support"
+            >
+
+                <span class="nav-icon">
+                    ?
+                </span>
+
+                <span>
+                    Support
+                </span>
+
+            </button>
+
+
+            <button
+                id="logoutBtn"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ↪
+                </span>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN AREA -->
+
+    <main class="dashboard-main">
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+
+            <div class="topbar-title">
+
+                <h1>
+                    Dashboard
+                </h1>
+
+                <p>
+                    Overview of your community platform
+                </p>
+
+            </div>
+
+
+            <div class="topbar-search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                    type="text"
+                    placeholder="Search modules..."
+                    data-dashboard-search
+                >
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+
+                <button
+                    class="topbar-icon"
+                    data-notifications
+                    title="Notifications"
+                >
+                    ♟
+                </button>
+
+
+                <button
+                    class="topbar-icon"
+                    data-settings
+                    title="Settings"
+                >
+                    ⚙
+                </button>
+
+
+                <div class="profile-circle">
+                    SA
+                </div>
+
+
+            </div>
+
+        </header>
+
+
+
+        <!-- DASHBOARD CONTENT -->
+
+        <section
+            id="dashboardContent"
+            class="dashboard-content"
+        >
+
+
+            <!-- WELCOME -->
+
+            <div class="welcome-row">
+
+
+                <div>
+
+                    <h2>
+                        Good morning, Super Admin 👋
+                    </h2>
+
+                    <p id="dashboardDate"></p>
+
+                </div>
+
+
+                <button
+                    id="newActionBtn"
+                    class="new-action-btn"
+                >
+
+                    + New Action
+
+                </button>
+
+            </div>
+
+
+
+            <!-- STAT CARDS -->
+
+            <div class="stat-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            TOTAL USERS
+                        </span>
+
+                        <strong id="totalUsers">
+                            0
+                        </strong>
+
+                        <span class="stat-change positive">
+                            ↗ From current data
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-icon purple">
+                        ♟
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            ACTIVE USERS
+                        </span>
+
+                        <strong id="activeUsers">
+                            0
+                        </strong>
+
+                        <span class="stat-change positive">
+                            ↗ Currently active
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-icon purple">
+                        ♟
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            TOTAL HOMES
+                        </span>
+
+                        <strong id="totalHomes">
+                            0
+                        </strong>
+
+                        <span class="stat-change">
+                            — Current total
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-icon blue">
+                        ⌂
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            PENDING ACCESS
+                        </span>
+
+                        <strong id="pendingAccess">
+                            0
+                        </strong>
+
+                        <span class="stat-change warning">
+                            ⚠ Requires attention
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-icon yellow">
+                        ▣
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- OVERVIEW ROW -->
+
+            <div class="overview-grid">
+
+
+                <!-- USER OVERVIEW -->
+
+                <div class="dashboard-card user-overview-card">
+
+
+                    <div class="card-heading">
+
+                        <h3>
+                            User Overview
+                        </h3>
+
+                        <button>
+                            ⋮
+                        </button>
+
+                    </div>
+
+
+                    <div class="user-overview-body">
+
+
+                        <div
+                            id="userOverviewChart"
+                            class="donut-chart"
+                        >
+
+                            <div class="donut-center">
+
+                                <strong id="overviewTotalUsers">
+                                    0
+                                </strong>
+
+                                <span>
+                                    Users
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="overview-legend">
+
+
+                            <div class="legend-item">
+
+                                <span class="legend-dot active-dot"></span>
+
+                                <span>
+                                    Active
+                                </span>
+
+                                <strong id="overviewActiveUsers">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="legend-item">
+
+                                <span class="legend-dot pending-dot"></span>
+
+                                <span>
+                                    Pending
+                                </span>
+
+                                <strong id="overviewPendingUsers">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="legend-item">
+
+                                <span class="legend-dot suspended-dot"></span>
+
+                                <span>
+                                    Suspended
+                                </span>
+
+                                <strong id="overviewSuspendedUsers">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- HOME ONBOARDING -->
+
+                <div class="dashboard-card onboarding-card">
+
+
+                    <div class="card-heading">
+
+                        <h3>
+                            Home Onboarding
+                        </h3>
+
+                        <span class="status-badge success">
+                            On Track
+                        </span>
+
+                    </div>
+
+
+                    <div class="onboarding-progress-header">
+
+                        <span>
+                            Overall Progress
+                        </span>
+
+                        <strong id="onboardingProgress">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress-track">
+
+                        <div
+                            id="onboardingProgressBar"
+                            class="progress-bar"
+                            style="width: 0%"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="onboarding-stats">
+
+
+                        <div>
+
+                            <span>
+                                Fully Onboarded
+                            </span>
+
+                            <strong id="fullyOnboarded">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                In Progress
+                            </span>
+
+                            <strong id="homesInProgress">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Needs Attention
+                            </span>
+
+                            <strong
+                                id="homesNeedsAttention"
+                                class="danger-number"
+                            >
+                                0
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ATTENTION REQUIRED -->
+
+            <div class="section-title">
+
+                <h3>
+                    ⚠ Attention Required
+                </h3>
+
+            </div>
+
+
+            <div class="attention-grid">
+
+
+                <div class="attention-card">
+
+                    <div class="attention-icon">
+                        ▣
+                    </div>
+
+                    <span class="attention-priority high">
+                        High
+                    </span>
+
+                    <strong id="attentionPendingAccess">
+                        0
+                    </strong>
+
+                    <span>
+                        Pending Access
+                    </span>
+
+                </div>
+
+
+                <div class="attention-card">
+
+                    <div class="attention-icon">
+                        ▣
+                    </div>
+
+                    <span class="attention-priority urgent">
+                        Urgent
+                    </span>
+
+                    <strong id="attentionHomesNeedsAttention">
+                        0
+                    </strong>
+
+                    <span>
+                        Homes Need Onboarding
+                    </span>
+
+                </div>
+
+
+                <div class="attention-card">
+
+                    <div class="attention-icon">
+                        ⚑
+                    </div>
+
+                    <span class="attention-priority urgent">
+                        Urgent
+                    </span>
+
+                    <strong id="attentionSlaBreached">
+                        0
+                    </strong>
+
+                    <span>
+                        SLA-Breached Complaints
+                    </span>
+
+                </div>
+
+
+                <div class="attention-card">
+
+                    <div class="attention-icon">
+                        ▣
+                    </div>
+
+                    <span class="attention-priority normal">
+                        Normal
+                    </span>
+
+                    <strong id="attentionGateApprovals">
+                        0
+                    </strong>
+
+                    <span>
+                        Pending Gate Approvals
+                    </span>
+
+                </div>
+
+
+                <div class="attention-card">
+
+                    <div class="attention-icon">
+                        ▤
+                    </div>
+
+                    <span class="attention-priority normal">
+                        Normal
+                    </span>
+
+                    <strong id="attentionVendorContracts">
+                        0
+                    </strong>
+
+                    <span>
+                        Vendor Contracts Due
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- RECENT ACTIVITY -->
+
+            <div class="dashboard-card recent-activity-card">
+
+
+                <div class="card-heading">
+
+                    <h3>
+                        Recent System Activity
+                    </h3>
+
+                    <button>
+                        View All
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentActivity"
+                    class="recent-activity"
+                >
+
+                    <div class="empty-activity">
+
+                        No recent activity.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- MODULE CONTENT -->
+
+        <section
+            id="moduleContent"
+            class="module-content hidden"
+        >
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     QUICK ACTIONS MODAL
+===================================================== -->
+
+<div
+    id="quickActionsModal"
+    class="modal hidden"
+>
+
+    <div class="modal-overlay"></div>
+
+
+    <div class="modal-box">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Quick Actions
+                </h2>
+
+                <p>
+                    Choose an action to continue.
+                </p>
+
+            </div>
+
+
+            <button
+                class="modal-close"
+                data-close-modal="quickActionsModal"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="quick-actions-grid">
+
+
+            <button
+                class="quick-action-card"
+                data-action="add-user"
+            >
+
+                <span class="quick-action-icon">
+                    ♟
+                </span>
+
+                <strong>
+                    Add New User
+                </strong>
+
+                <span>
+                    Create a community user
+                </span>
+
+            </button>
+
+
+            <button
+                class="quick-action-card"
+                data-action="role"
+            >
+
+                <span class="quick-action-icon">
+                    ◆
+                </span>
+
+                <strong>
+                    Create New Role
+                </strong>
+
+                <span>
+                    Define role permissions
+                </span>
+
+            </button>
+
+
+            <button
+                class="quick-action-card"
+                data-action="household"
+            >
+
+                <span class="quick-action-icon">
+                    ⌂
+                </span>
+
+                <strong>
+                    Add Household
+                </strong>
+
+                <span>
+                    Register a new household
+                </span>
+
+            </button>
+
+
+            <button
+                class="quick-action-card"
+                data-action="policy"
+            >
+
+                <span class="quick-action-icon">
+                    ▣
+                </span>
+
+                <strong>
+                    Update Policy
+                </strong>
+
+                <span>
+                    Manage community policies
+                </span>
+
+            </button>
+
+
+            <button
+                class="quick-action-card"
+                data-action="announcement"
+            >
+
+                <span class="quick-action-icon">
+                    ⚑
+                </span>
+
+                <strong>
+                    New Announcement
+                </strong>
+
+                <span>
+                    Broadcast a message
+                </span>
+
+            </button>
+
+
+            <button
+                class="quick-action-card"
+                data-action="module"
+            >
+
+                <span class="quick-action-icon">
+                    ⚙
+                </span>
+
+                <strong>
+                    Configure Module
+                </strong>
+
+                <span>
+                    Configure platform modules
+                </span>
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     ADD NEW USER MODAL
+===================================================== -->
+
+<div
+    id="addUserModal"
+    class="modal hidden"
+>
+
+    <div class="modal-overlay"></div>
+
+
+    <div class="modal-box form-modal">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Add New User
+                </h2>
+
+                <p>
+                    Create a new CommunityERP user.
+                </p>
+
+            </div>
+
+
+            <button
+                class="modal-close"
+                data-close-modal="addUserModal"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            id="addUserForm"
+            class="modal-form"
+        >
+
+
+            <div class="form-row">
+
+
+                <div class="form-group">
+
+                    <label>
+                        First Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="firstName"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Last Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="lastName"
+                        required
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-row">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Phone
+                    </label>
+
+                    <input
+                        type="tel"
+                        name="phone"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-row">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Primary Residence / Unit
+                    </label>
+
+                    <input
+                        type="text"
+                        name="residence"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Move-in Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="moveInDate"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Role & Access Level
+                </label>
+
+
+                <select
+                    name="role"
+                    required
+                >
+
+                    <option value="">
+                        Select role
+                    </option>
+
+                    <option value="Resident">
+                        Resident
+                    </option>
+
+                    <option value="Community Manager">
+                        Community Manager
+                    </option>
+
+                    <option value="Security Head">
+                        Security Head
+                    </option>
+
+                    <option value="Super Admin">
+                        Super Admin
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    data-close-modal="addUserModal"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Create User
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     NEW ANNOUNCEMENT MODAL
+===================================================== -->
+
+<div
+    id="announcementModal"
+    class="modal hidden"
+>
+
+    <div class="modal-overlay"></div>
+
+
+    <div class="modal-box announcement-modal">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    New Announcement
+                </h2>
+
+                <p>
+                    Create and broadcast a community announcement.
+                </p>
+
+            </div>
+
+
+            <button
+                class="modal-close"
+                data-close-modal="announcementModal"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            id="announcementForm"
+            class="modal-form"
+        >
+
+
+            <div class="form-group">
+
+                <label>
+                    Announcement Title
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Category
+                    </label>
+
+                    <select
+                        name="category"
+                        required
+                    >
+
+                        <option value="">
+                            Select category
+                        </option>
+
+                        <option value="General">
+                            General
+                        </option>
+
+                        <option value="Emergency">
+                            Emergency
+                        </option>
+
+                        <option value="Maintenance">
+                            Maintenance
+                        </option>
+
+                        <option value="Event">
+                            Event
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Target Audience
+                    </label>
+
+                    <select
+                        name="audience"
+                        required
+                    >
+
+                        <option value="">
+                            Select audience
+                        </option>
+
+                        <option value="All Residents">
+                            All Residents
+                        </option>
+
+                        <option value="Community Managers">
+                            Community Managers
+                        </option>
+
+                        <option value="Security">
+                            Security
+                        </option>
+
+                        <option value="All Users">
+                            All Users
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Message Body
+                </label>
+
+                <textarea
+                    name="message"
+                    rows="6"
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Attachments
+                </label>
+
+                <input
+                    type="file"
+                    name="attachments"
+                >
+
+            </div>
+
+
+            <div class="notification-options">
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="inAppNotice"
+                        checked
+                    >
+
+                    <span>
+                        In-App Notice
+                    </span>
+
+                </label>
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="pushNotification"
+                    >
+
+                    <span>
+                        Push Notification
+                    </span>
+
+                </label>
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="emailBroadcast"
+                    >
+
+                    <span>
+                        Email Broadcast
+                    </span>
+
+                </label>
+
+
+            </div>
+
+
+            <div class="announcement-actions">
+
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    data-close-modal="announcementModal"
+                >
+                    Save as Draft
+                </button>
+
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                >
+                    Schedule Later
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Broadcast Announcement
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     GENERIC ACTION MODAL
+===================================================== -->
+
+<div
+    id="genericActionModal"
+    class="modal hidden"
+>
+
+    <div class="modal-overlay"></div>
+
+
+    <div class="modal-box small-modal">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="genericActionTitle">
+                    Action
+                </h2>
+
+                <p id="genericActionMessage">
+                    This action is ready for backend integration.
+                </p>
+
+            </div>
+
+
+            <button
+                class="modal-close"
+                data-close-modal="genericActionModal"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="generic-action-body">
+
+            <p>
+                Backend functionality for this module
+                will be connected in the next stage.
+            </p>
+
+
+            <button
+                class="primary-btn"
+                data-close-modal="genericActionModal"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script src="app.js"></script>
+
+
 </body>
+
 </html>

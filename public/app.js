@@ -1,213 +1,266 @@
-const loginScreen =
-    document.getElementById("loginScreen");
+// =====================================================
+// ELEMENTS
+// =====================================================
 
-const otpScreen =
-    document.getElementById("otpScreen");
+const loginScreen = document.getElementById("loginScreen");
+const otpScreen = document.getElementById("otpScreen");
+const dashboardScreen = document.getElementById("dashboardScreen");
 
-const dashboardScreen =
-    document.getElementById("dashboardScreen");
+const emailInput = document.getElementById("emailInput");
+const generateBtn = document.getElementById("generateBtn");
+const verifyBtn = document.getElementById("verifyBtn");
 
+const otpInputs = document.querySelectorAll(".otp-input");
 
-const identifierInput =
-    document.getElementById("identifier");
+const loginMessage = document.getElementById("loginMessage");
+const otpMessage = document.getElementById("otpMessage");
 
-const generateBtn =
-    document.getElementById("generateBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-const verifyBtn =
-    document.getElementById("verifyBtn");
+const dashboardContent =
+    document.getElementById("dashboardContent");
 
+const moduleContent =
+    document.getElementById("moduleContent");
 
-const loginMessage =
-    document.getElementById("loginMessage");
+const quickActionsModal =
+    document.getElementById("quickActionsModal");
 
-const otpMessage =
-    document.getElementById("otpMessage");
+const addUserModal =
+    document.getElementById("addUserModal");
 
+const announcementModal =
+    document.getElementById("announcementModal");
 
-const otpInputs = Array.from(
-    document.querySelectorAll(".otp-inputs input")
-);
+const genericActionModal =
+    document.getElementById("genericActionModal");
 
-
-const resendBtn =
-    document.getElementById("resendBtn");
-
-const timerElement =
-    document.getElementById("timer");
-
-const backBtn =
-    document.getElementById("backBtn");
-
-const logoutBtn =
-    document.getElementById("logoutBtn");
+const newActionBtn =
+    document.getElementById("newActionBtn");
 
 
-let verificationToken = null;
+// =====================================================
+// AUTH
+// =====================================================
 
-let timerInterval = null;
-
-let remainingSeconds = 44;
-
-let userEmail = "";
+let currentEmail = "";
+let verificationToken = "";
 
 
-// =====================================
-// SCREEN FUNCTIONS
-// =====================================
+// =====================================================
+// HELPERS
+// =====================================================
 
 function show(element) {
-
-    element.classList.remove("hidden");
+    element?.classList.remove("hidden");
 }
 
 
 function hide(element) {
-
-    element.classList.add("hidden");
+    element?.classList.add("hidden");
 }
 
 
-// =====================================
-// OTP FUNCTIONS
-// =====================================
+function setText(id, value) {
 
-function clearOtpInputs() {
+    const element =
+        document.getElementById(id);
 
-    otpInputs.forEach((input) => {
+    if (element) {
+        element.textContent = value;
+    }
 
-        input.value = "";
-
-    });
 }
 
 
-function getOtp() {
+function number(value) {
 
-    return otpInputs
-        .map((input) => input.value)
-        .join("");
+    return Number(value || 0)
+        .toLocaleString();
+
 }
 
 
-// =====================================
-// GENERATE OTP
-// =====================================
+function message(element, text, type = "") {
 
-generateBtn.addEventListener(
+    if (!element) return;
+
+    element.textContent = text;
+    element.className =
+        `message ${type}`;
+
+}
+
+
+async function api(url, options = {}) {
+
+    const response =
+        await fetch(url, {
+
+            ...options,
+
+            headers: {
+
+                "Content-Type":
+                    "application/json",
+
+                ...(options.headers || {})
+
+            }
+
+        });
+
+
+    const data =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.message ||
+            "Something went wrong."
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+// =====================================================
+// CURRENT DATE
+// =====================================================
+
+function updateDashboardDate() {
+
+    const element =
+        document.getElementById(
+            "dashboardDate"
+        );
+
+
+    if (!element) return;
+
+
+    element.textContent =
+        new Date().toLocaleDateString(
+            "en-US",
+            {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric"
+            }
+        );
+
+}
+
+
+// =====================================================
+// LOGIN
+// =====================================================
+
+generateBtn?.addEventListener(
     "click",
     async () => {
 
         const email =
-            identifierInput.value
-                .trim()
-                .toLowerCase();
+            emailInput.value.trim();
 
 
         if (!email) {
 
-            loginMessage.textContent =
-                "Email is required.";
+            message(
+                loginMessage,
+                "Please enter your email address.",
+                "error"
+            );
 
             return;
         }
-
-
-        const emailPattern =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-        if (!emailPattern.test(email)) {
-
-            loginMessage.textContent =
-                "Please enter a valid email address.";
-
-            return;
-        }
-
-
-        userEmail = email;
-
-
-        loginMessage.textContent =
-            "Sending verification code...";
 
 
         generateBtn.disabled = true;
+        generateBtn.textContent =
+            "Sending...";
 
 
         try {
 
-            const response =
-                await fetch(
+            const data =
+                await api(
                     "/api/auth/generate-otp",
                     {
                         method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            email: email
-                        })
+                        body:
+                            JSON.stringify({
+                                email
+                            })
                     }
                 );
 
 
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    "Unable to send verification code."
-                );
-            }
-
+            currentEmail = email;
 
             verificationToken =
                 data.verificationToken;
 
 
             hide(loginScreen);
-
             show(otpScreen);
 
 
-            clearOtpInputs();
+            message(
+                otpMessage,
+                data.message,
+                "success"
+            );
 
 
-            otpMessage.textContent =
-                "A verification code has been sent to your email.";
-
-
-            startTimer();
-
-
-            otpInputs[0].focus();
+            otpInputs[0]?.focus();
 
 
         } catch (error) {
 
-            loginMessage.textContent =
-                error.message;
+            message(
+                loginMessage,
+                error.message,
+                "error"
+            );
 
 
         } finally {
 
             generateBtn.disabled = false;
+
+            generateBtn.innerHTML =
+                "<span>Generate OTP</span><span>→</span>";
+
         }
+
     }
 );
 
 
-// =====================================
-// OTP INPUTS
-// =====================================
+// =====================================================
+// OTP INPUT
+// =====================================================
 
 otpInputs.forEach(
     (input, index) => {
@@ -217,9 +270,10 @@ otpInputs.forEach(
             () => {
 
                 input.value =
-                    input.value
-                        .replace(/\D/g, "")
-                        .slice(0, 1);
+                    input.value.replace(
+                        /\D/g,
+                        ""
+                    );
 
 
                 if (
@@ -228,27 +282,32 @@ otpInputs.forEach(
                     otpInputs.length - 1
                 ) {
 
-                    otpInputs[index + 1]
-                        .focus();
+                    otpInputs[
+                        index + 1
+                    ].focus();
+
                 }
+
             }
         );
 
 
         input.addEventListener(
             "keydown",
-            (event) => {
+            event => {
 
                 if (
-                    event.key ===
-                    "Backspace" &&
+                    event.key === "Backspace" &&
                     !input.value &&
                     index > 0
                 ) {
 
-                    otpInputs[index - 1]
-                        .focus();
+                    otpInputs[
+                        index - 1
+                    ].focus();
+
                 }
+
             }
         );
 
@@ -256,329 +315,1337 @@ otpInputs.forEach(
 );
 
 
-// =====================================
+// =====================================================
 // VERIFY OTP
-// =====================================
+// =====================================================
 
-verifyBtn.addEventListener(
+verifyBtn?.addEventListener(
     "click",
     async () => {
 
         const otp =
-            getOtp().trim();
+            [...otpInputs]
+                .map(input => input.value)
+                .join("");
 
 
         if (otp.length !== 6) {
 
-            otpMessage.textContent =
-                "Please enter the complete 6-digit OTP.";
-
-            return;
-        }
-
-
-        if (
-            !verificationToken ||
-            !userEmail
-        ) {
-
-            otpMessage.textContent =
-                "Verification session expired. Please generate a new OTP.";
+            message(
+                otpMessage,
+                "Please enter the complete 6-digit code.",
+                "error"
+            );
 
             return;
         }
 
 
         verifyBtn.disabled = true;
-
-
-        otpMessage.textContent =
+        verifyBtn.textContent =
             "Verifying...";
 
 
         try {
 
-            const response =
-                await fetch(
-                    "/api/auth/verify-otp",
-                    {
-                        method: "POST",
+            await api(
+                "/api/auth/verify-otp",
+                {
+                    method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
                             email:
-                                userEmail,
+                                currentEmail,
 
-                            otp:
-                                otp,
+                            otp,
 
-                            verificationToken:
-                                verificationToken
+                            verificationToken
+
                         })
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    "OTP verification failed."
-                );
-            }
-
-
-            clearInterval(
-                timerInterval
+                }
             );
 
 
             hide(otpScreen);
-
             show(dashboardScreen);
+
+            updateDashboardDate();
+
+            await loadDashboard();
 
 
         } catch (error) {
 
-            otpMessage.textContent =
-                error.message;
+            message(
+                otpMessage,
+                error.message,
+                "error"
+            );
 
 
         } finally {
 
             verifyBtn.disabled = false;
+
+            verifyBtn.textContent =
+                "Verify & Login";
+
         }
+
     }
 );
 
 
-// =====================================
-// RESEND OTP
-// =====================================
+// =====================================================
+// DASHBOARD
+// =====================================================
 
-resendBtn.addEventListener(
+async function loadDashboard() {
+
+    try {
+
+        const data =
+            await api(
+                "/api/dashboard"
+            );
+
+
+        updateDashboard(data);
+
+        updateDashboardDate();
+
+        showDashboard();
+
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+    }
+
+}
+
+
+function updateDashboard(data) {
+
+    const stats =
+        data.stats || {};
+
+    const users =
+        data.userOverview || {};
+
+    const homes =
+        data.homeOnboarding || {};
+
+    const attention =
+        data.attentionRequired || {};
+
+
+    // Stats
+
+    setText(
+        "totalUsers",
+        number(stats.totalUsers)
+    );
+
+    setText(
+        "activeUsers",
+        number(stats.activeUsers)
+    );
+
+    setText(
+        "totalHomes",
+        number(stats.totalHomes)
+    );
+
+    setText(
+        "pendingAccess",
+        number(stats.pendingAccess)
+    );
+
+
+    // User overview
+
+    setText(
+        "overviewTotalUsers",
+        number(users.total)
+    );
+
+    setText(
+        "overviewActiveUsers",
+        number(users.active)
+    );
+
+    setText(
+        "overviewPendingUsers",
+        number(users.pending)
+    );
+
+    setText(
+        "overviewSuspendedUsers",
+        number(users.suspended)
+    );
+
+
+    updateUserChart(users);
+
+
+    // Homes
+
+    const progress =
+        homes.progress || 0;
+
+
+    setText(
+        "onboardingProgress",
+        `${progress}%`
+    );
+
+
+    setText(
+        "fullyOnboarded",
+        number(homes.fullyOnboarded)
+    );
+
+    setText(
+        "homesInProgress",
+        number(homes.inProgress)
+    );
+
+    setText(
+        "homesNeedsAttention",
+        number(homes.needsAttention)
+    );
+
+
+    const progressBar =
+        document.getElementById(
+            "onboardingProgressBar"
+        );
+
+
+    if (progressBar) {
+
+        progressBar.style.width =
+            `${progress}%`;
+
+    }
+
+
+    // Attention
+
+    setText(
+        "attentionPendingAccess",
+        number(
+            attention.pendingAccess
+        )
+    );
+
+    setText(
+        "attentionHomesNeedsAttention",
+        number(
+            attention.homesNeedsAttention
+        )
+    );
+
+    setText(
+        "attentionSlaBreached",
+        number(
+            attention.slaBreachedComplaints
+        )
+    );
+
+    setText(
+        "attentionGateApprovals",
+        number(
+            attention.pendingGateApprovals
+        )
+    );
+
+    setText(
+        "attentionVendorContracts",
+        number(
+            attention.vendorContractsDue
+        )
+    );
+
+
+    renderActivity(
+        data.recentActivity || []
+    );
+
+}
+
+
+// =====================================================
+// USER CHART
+// =====================================================
+
+function updateUserChart(users) {
+
+    const chart =
+        document.getElementById(
+            "userOverviewChart"
+        );
+
+
+    if (!chart) return;
+
+
+    const total =
+        Number(users.total || 0);
+
+    const active =
+        Number(users.active || 0);
+
+    const pending =
+        Number(users.pending || 0);
+
+
+    if (!total) {
+
+        chart.style.background =
+            "conic-gradient(#e5e5eb 0 360deg)";
+
+        return;
+
+    }
+
+
+    const activeDegrees =
+        active / total * 360;
+
+    const pendingDegrees =
+        pending / total * 360;
+
+
+    chart.style.background =
+        `conic-gradient(
+            #6c4cff 0deg ${activeDegrees}deg,
+            #b894ff ${activeDegrees}deg
+            ${activeDegrees + pendingDegrees}deg,
+            #d6d5dd
+            ${activeDegrees + pendingDegrees}deg
+            360deg
+        )`;
+
+}
+
+
+// =====================================================
+// ACTIVITY
+// =====================================================
+
+function renderActivity(activities) {
+
+    const container =
+        document.getElementById(
+            "recentActivity"
+        );
+
+
+    if (!container) return;
+
+
+    if (!activities.length) {
+
+        container.innerHTML =
+            `
+            <div class="empty-activity">
+                No recent activity.
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        activities
+            .map(
+                item => `
+
+                <div class="activity-item">
+
+                    <div class="activity-icon">
+                        •
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            ${escapeHtml(
+                                item.action
+                            )}
+                        </strong>
+
+                        <span>
+                            ${escapeHtml(
+                                item.description
+                            )}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                `
+            )
+            .join("");
+
+}
+
+
+// =====================================================
+// DASHBOARD VIEW
+// =====================================================
+
+function showDashboard() {
+
+    show(dashboardContent);
+
+    hide(moduleContent);
+
+}
+
+
+// =====================================================
+// SIDEBAR
+// =====================================================
+
+document
+    .querySelectorAll("[data-module]")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const module =
+                    button.dataset.module;
+
+
+                if (
+                    module === "dashboard"
+                ) {
+
+                    showDashboard();
+
+                    loadDashboard();
+
+                } else {
+
+                    showModule(module);
+
+                }
+
+            }
+        );
+
+    });
+
+
+function showModule(module) {
+
+    hide(dashboardContent);
+
+    show(moduleContent);
+
+
+    const modules = {
+
+        community: [
+            "Community Configuration",
+            "Configure community settings and platform information."
+        ],
+
+        users: [
+            "Users & Homes",
+            "Manage community users and households."
+        ],
+
+        roles: [
+            "Roles & Permissions",
+            "Manage roles and permissions."
+        ],
+
+        access: [
+            "Access Control",
+            "Manage user access and approvals."
+        ],
+
+        audit: [
+            "Audit Logs",
+            "Review recent system activity."
+        ],
+
+        alerts: [
+            "Alerts",
+            "View and manage community alerts."
+        ],
+
+        settings: [
+            "System Settings",
+            "Manage CommunityERP system settings."
+        ],
+
+        support: [
+            "Support",
+            "Get help with CommunityERP."
+        ]
+
+    };
+
+
+    const content =
+        modules[module] ||
+        [
+            "Module",
+            "Module information."
+        ];
+
+
+    moduleContent.innerHTML = `
+
+        <div class="module-placeholder">
+
+            <h2>
+                ${content[0]}
+            </h2>
+
+            <p>
+                ${content[1]}
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+// =====================================================
+// QUICK ACTIONS
+// =====================================================
+
+newActionBtn?.addEventListener(
     "click",
-    async () => {
+    () => {
 
-        if (!userEmail) {
+        show(
+            quickActionsModal
+        );
 
-            return;
-        }
+    }
+);
 
 
-        resendBtn.disabled = true;
+document
+    .querySelectorAll("[data-action]")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                hide(
+                    quickActionsModal
+                );
 
 
-        otpMessage.textContent =
-            "Sending new verification code...";
+                handleAction(
+                    button.dataset.action
+                );
+
+            }
+        );
+
+    });
+
+
+// =====================================================
+// REUSABLE QUICK ACTION FORMS
+// =====================================================
+
+const actionForms = {
+
+    role: {
+
+        title: "Create New Role",
+
+        endpoint: "/api/roles",
+
+        fields: `
+
+            <div class="form-group">
+
+                <label>Role Name</label>
+
+                <input
+                    name="name"
+                    placeholder="Enter role name"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Description</label>
+
+                <textarea
+                    name="description"
+                    placeholder="Describe the role"
+                ></textarea>
+
+            </div>
+
+        `,
+
+        button: "Create Role"
+
+    },
+
+
+    household: {
+
+        title: "Add Household",
+
+        endpoint: "/api/homes",
+
+        fields: `
+
+            <div class="form-group">
+
+                <label>Household Name</label>
+
+                <input
+                    name="name"
+                    placeholder="Enter household name"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Unit</label>
+
+                <input
+                    name="unit"
+                    placeholder="Example: A-101"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Onboarding Status</label>
+
+                <select name="status">
+
+                    <option value="In Progress">
+                        In Progress
+                    </option>
+
+                    <option value="Onboarded">
+                        Onboarded
+                    </option>
+
+                    <option value="Needs Attention">
+                        Needs Attention
+                    </option>
+
+                </select>
+
+            </div>
+
+        `,
+
+        button: "Create Household"
+
+    },
+
+
+    policy: {
+
+        title: "Update Policy",
+
+        endpoint: "/api/policies",
+
+        fields: `
+
+            <div class="form-group">
+
+                <label>Policy Title</label>
+
+                <input
+                    name="title"
+                    placeholder="Enter policy title"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Description</label>
+
+                <textarea
+                    name="description"
+                    placeholder="Enter policy details"
+                ></textarea>
+
+            </div>
+
+        `,
+
+        button: "Update Policy"
+
+    },
+
+
+    module: {
+
+        title: "Configure Module",
+
+        endpoint: "/api/modules",
+
+        fields: `
+
+            <div class="form-group">
+
+                <label>Module Name</label>
+
+                <input
+                    name="name"
+                    placeholder="Enter module name"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Status</label>
+
+                <select name="enabled">
+
+                    <option value="true">
+                        Enabled
+                    </option>
+
+                    <option value="false">
+                        Disabled
+                    </option>
+
+                </select>
+
+            </div>
+
+        `,
+
+        button: "Save Configuration"
+
+    }
+
+};
+
+
+// =====================================================
+// HANDLE QUICK ACTION
+// =====================================================
+
+function handleAction(action) {
+
+    if (action === "add-user") {
+
+        show(addUserModal);
+
+        return;
+
+    }
+
+
+    if (action === "announcement") {
+
+        show(announcementModal);
+
+        return;
+
+    }
+
+
+    if (actionForms[action]) {
+
+        openActionForm(
+            actionForms[action]
+        );
+
+        return;
+
+    }
+
+}
+
+
+// =====================================================
+// OPEN REUSABLE ACTION FORM
+// =====================================================
+
+function openActionForm(config) {
+
+    const body =
+        genericActionModal.querySelector(
+            ".generic-action-body"
+        );
+
+
+    if (!body) return;
+
+
+    body.innerHTML = `
+
+        <form
+            class="modal-form"
+            id="genericActionForm"
+        >
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2>
+                        ${config.title}
+                    </h2>
+
+                    <p>
+                        Complete the details below.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-action-close
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div style="padding: 25px 28px;">
+
+                ${config.fields}
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    data-action-close
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    ${config.button}
+                </button>
+
+            </div>
+
+        </form>
+
+    `;
+
+
+    show(
+        genericActionModal
+    );
+
+
+    const form =
+        document.getElementById(
+            "genericActionForm"
+        );
+
+
+    form.addEventListener(
+        "submit",
+        event =>
+            submitActionForm(
+                event,
+                form,
+                config
+            )
+    );
+
+
+    form
+        .querySelectorAll(
+            "[data-action-close]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    hide(
+                        genericActionModal
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+// =====================================================
+// SUBMIT REUSABLE ACTION
+// =====================================================
+
+async function submitActionForm(
+    event,
+    form,
+    config
+) {
+
+    event.preventDefault();
+
+
+    const formData =
+        new FormData(form);
+
+
+    const payload =
+        Object.fromEntries(
+            formData.entries()
+        );
+
+
+    if (
+        payload.enabled === "true" ||
+        payload.enabled === "false"
+    ) {
+
+        payload.enabled =
+            payload.enabled === "true";
+
+    }
+
+
+    const button =
+        form.querySelector(
+            'button[type="submit"]'
+        );
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Saving...";
+
+
+    try {
+
+        const result =
+            await api(
+                config.endpoint,
+                {
+                    method: "POST",
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        alert(
+            result.message
+        );
+
+
+        hide(
+            genericActionModal
+        );
+
+
+        await loadDashboard();
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+            config.button;
+
+    }
+
+}
+
+
+// =====================================================
+// CLOSE MODALS
+// =====================================================
+
+document
+    .querySelectorAll("[data-close-modal]")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const modal =
+                    document.getElementById(
+                        button.dataset.closeModal
+                    );
+
+
+                hide(modal);
+
+            }
+        );
+
+    });
+
+
+// =====================================================
+// ADD USER
+// =====================================================
+
+const addUserForm =
+    document.getElementById(
+        "addUserForm"
+    );
+
+
+addUserForm?.addEventListener(
+    "submit",
+    async event => {
+
+        event.preventDefault();
+
+
+        const formData =
+            new FormData(
+                addUserForm
+            );
+
+
+        const user =
+            Object.fromEntries(
+                formData.entries()
+            );
+
+
+        const button =
+            addUserForm.querySelector(
+                'button[type="submit"]'
+            );
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Creating...";
 
 
         try {
 
-            const response =
-                await fetch(
-                    "/api/auth/generate-otp",
+            const result =
+                await api(
+                    "/api/users",
                     {
                         method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-
-                            email:
-                                userEmail
-                        })
+                        body:
+                            JSON.stringify(
+                                user
+                            )
                     }
                 );
 
 
-            const data =
-                await response.json();
+            alert(
+                result.message
+            );
 
 
-            if (!response.ok) {
+            addUserForm.reset();
 
-                throw new Error(
-                    data.message ||
-                    "Unable to resend OTP."
-                );
-            }
+            hide(addUserModal);
 
-
-            verificationToken =
-                data.verificationToken;
-
-
-            otpMessage.textContent =
-                "A new verification code has been sent to your email.";
-
-
-            clearOtpInputs();
-
-
-            otpInputs[0].focus();
-
-
-            startTimer();
+            await loadDashboard();
 
 
         } catch (error) {
 
-            otpMessage.textContent =
-                error.message;
+            alert(
+                error.message
+            );
 
-            resendBtn.disabled = false;
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Create User";
+
         }
+
     }
 );
 
 
-// =====================================
-// TIMER
-// =====================================
+// =====================================================
+// ANNOUNCEMENT
+// =====================================================
 
-function startTimer() {
-
-    clearInterval(
-        timerInterval
+const announcementForm =
+    document.getElementById(
+        "announcementForm"
     );
 
 
-    remainingSeconds = 44;
+announcementForm?.addEventListener(
+    "submit",
+    async event => {
+
+        event.preventDefault();
 
 
-    resendBtn.disabled = true;
+        const formData =
+            new FormData(
+                announcementForm
+            );
 
 
-    updateTimer();
+        const announcement =
+            Object.fromEntries(
+                formData.entries()
+            );
 
 
-    timerInterval =
-        setInterval(
-            () => {
-
-                remainingSeconds--;
-
-                updateTimer();
+        announcement.inAppNotice =
+            formData.has(
+                "inAppNotice"
+            );
 
 
-                if (
-                    remainingSeconds <= 0
-                ) {
-
-                    clearInterval(
-                        timerInterval
-                    );
+        announcement.pushNotification =
+            formData.has(
+                "pushNotification"
+            );
 
 
-                    resendBtn.disabled =
-                        false;
+        announcement.emailBroadcast =
+            formData.has(
+                "emailBroadcast"
+            );
 
 
-                    timerElement.textContent =
-                        "00:00";
-                }
-
-            },
-            1000
-        );
-}
+        const button =
+            announcementForm.querySelector(
+                'button[type="submit"]'
+            );
 
 
-function updateTimer() {
+        button.disabled = true;
 
-    const seconds =
-        String(remainingSeconds)
-            .padStart(2, "0");
-
-
-    timerElement.textContent =
-        `00:${seconds}`;
-}
+        button.textContent =
+            "Broadcasting...";
 
 
-// =====================================
-// BACK TO LOGIN
-// =====================================
+        try {
 
-backBtn.addEventListener(
+            const result =
+                await api(
+                    "/api/announcements",
+                    {
+                        method: "POST",
+
+                        body:
+                            JSON.stringify(
+                                announcement
+                            )
+                    }
+                );
+
+
+            alert(
+                result.message
+            );
+
+
+            announcementForm.reset();
+
+            hide(
+                announcementModal
+            );
+
+
+            await loadDashboard();
+
+
+        } catch (error) {
+
+            alert(
+                error.message
+            );
+
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Broadcast Announcement";
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+logoutBtn?.addEventListener(
     "click",
     () => {
 
-        clearInterval(
-            timerInterval
+        currentEmail = "";
+
+        verificationToken = "";
+
+
+        otpInputs.forEach(
+            input => {
+                input.value = "";
+            }
         );
 
+
+        hide(dashboardScreen);
 
         hide(otpScreen);
 
         show(loginScreen);
 
 
-        otpMessage.textContent =
-            "";
-
-
-        clearOtpInputs();
-
-
-        verificationToken =
-            null;
-
-        userEmail =
-            "";
-    }
-);
-
-
-// =====================================
-// LOGOUT
-// =====================================
-
-logoutBtn.addEventListener(
-    "click",
-    () => {
-
-        clearInterval(
-            timerInterval
+        message(
+            loginMessage,
+            ""
         );
 
+        message(
+            otpMessage,
+            ""
+        );
 
-        hide(dashboardScreen);
-
-        show(loginScreen);
-
-
-        identifierInput.value =
-            "";
-
-
-        clearOtpInputs();
-
-
-        verificationToken =
-            null;
-
-        userEmail =
-            "";
-
-
-        loginMessage.textContent =
-            "";
-
-        otpMessage.textContent =
-            "";
     }
 );
+
+
+// =====================================================
+// SEARCH
+// =====================================================
+
+const searchInput =
+    document.querySelector(
+        "[data-dashboard-search]"
+    );
+
+
+searchInput?.addEventListener(
+    "input",
+    () => {
+
+        const value =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+
+        document
+            .querySelectorAll(
+                "[data-module]"
+            )
+            .forEach(button => {
+
+                button.style.display =
+                    !value ||
+                    button.textContent
+                        .toLowerCase()
+                        .includes(value)
+                        ? ""
+                        : "none";
+
+            });
+
+    }
+);
+
+
+// =====================================================
+// NOTIFICATIONS
+// =====================================================
+
+document
+    .querySelector(
+        "[data-notifications]"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            alert(
+                "No new notifications."
+            );
+
+        }
+    );
+
+
+// =====================================================
+// INITIAL STATE
+// =====================================================
+
+hide(otpScreen);
+
+hide(dashboardScreen);
+
+hide(moduleContent);
+
+updateDashboardDate();
